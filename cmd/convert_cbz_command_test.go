@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/belphemur/CBZOptimizer/cbz"
 	"github.com/belphemur/CBZOptimizer/converter"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/belphemur/CBZOptimizer/packer"
@@ -90,9 +91,28 @@ func TestConvertCbzCommand(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && strings.HasSuffix(info.Name(), "_converted.cbz") {
-			t.Logf("Converted file found: %s", path)
+		if info.IsDir() || !strings.HasSuffix(info.Name(), "_converted.cbz") {
+			return nil
 		}
+		t.Logf("CBZ file found: %s", path)
+
+		// Load the converted chapter
+		chapter, err := cbz.LoadChapter(path)
+		if err != nil {
+			return err
+		}
+
+		// Check if the chapter is marked as converted
+		if !chapter.IsConverted {
+			t.Errorf("Chapter is not marked as converted: %s", path)
+		}
+
+		// Check if the ConvertedTime is set
+		if chapter.ConvertedTime.IsZero() {
+			t.Errorf("ConvertedTime is not set for chapter: %s", path)
+		}
+		t.Logf("CBZ file [%s] is converted: %s", path, chapter.ConvertedTime)
+
 		return nil
 	})
 	if err != nil {
