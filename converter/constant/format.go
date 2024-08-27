@@ -29,3 +29,14 @@ func ListAll() []string {
 	}
 	return formats
 }
+
+func FindConversionFormat(format string) ConversionFormat {
+	for convFormat, names := range CommandValue {
+		for _, name := range names {
+			if name == format {
+				return convFormat
+			}
+		}
+	}
+	return DefaultConversion
+}

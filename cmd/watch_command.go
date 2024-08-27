@@ -54,16 +54,14 @@ func WatchCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("the path needs to be a folder")
 	}
 
-	quality, err := cmd.Flags().GetUint8("quality")
-	if err != nil {
+	quality := uint8(viper.GetUint16("quality"))
+	if quality <= 0 {
 		return fmt.Errorf("invalid quality value")
 	}
 
-	override, err := cmd.Flags().GetBool("override")
-	if err != nil {
-		return fmt.Errorf("invalid quality value")
-	}
+	override := viper.GetBool("override")
 
+	converterType := constant.FindConversionFormat(viper.GetString("format"))
 	chapterConverter, err := converter.Get(converterType)
 	if err != nil {
 		return fmt.Errorf("failed to get chapterConverter: %v", err)
@@ -73,6 +71,7 @@ func WatchCommand(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to prepare converter: %v", err)
 	}
+	log.Printf("Watching [%s] with [override: %t, quality: %d, format: %s]", path, override, quality, converterType.String())
 
 	events := make(chan inotifywaitgo.FileEvent)
 	errors := make(chan error)
