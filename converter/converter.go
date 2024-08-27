@@ -27,7 +27,9 @@ func Available() []constant.ConversionFormat {
 
 // Get returns a packer by name.
 // If the packer is not available, an error is returned.
-func Get(name constant.ConversionFormat) (Converter, error) {
+var Get = getConverter
+
+func getConverter(name constant.ConversionFormat) (Converter, error) {
 	if converter, ok := converters[name]; ok {
 		return converter, nil
 	}
