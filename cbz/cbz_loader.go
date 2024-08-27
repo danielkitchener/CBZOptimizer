@@ -25,63 +25,65 @@ func LoadChapter(filePath string) (*packer.Chapter, error) {
 	}
 
 	for _, f := range r.File {
-		if !f.FileInfo().IsDir() {
-			// Open the file inside the zip
-			rc, err := f.Open()
-			if err != nil {
-				return nil, fmt.Errorf("failed to open file inside .cbz: %w", err)
-			}
-
-			// Determine the file extension
-			ext := strings.ToLower(filepath.Ext(f.Name))
-
-			if ext == ".xml" && strings.ToLower(filepath.Base(f.Name)) == "comicinfo.xml" {
-				// Read the ComicInfo.xml file content
-				xmlContent, err := io.ReadAll(rc)
-				if err != nil {
-					rc.Close()
-					return nil, fmt.Errorf("failed to read ComicInfo.xml content: %w", err)
-				}
-				chapter.ComicInfoXml = string(xmlContent)
-			} else if ext == ".txt" && strings.ToLower(filepath.Base(f.Name)) == "converted.txt" {
-				textContent, err := io.ReadAll(rc)
-				if err != nil {
-					rc.Close()
-					return nil, fmt.Errorf("failed to read Converted.xml content: %w", err)
-				}
-				scanner := bufio.NewScanner(bytes.NewReader(textContent))
-				if scanner.Scan() {
-					convertedTime := scanner.Text()
-					chapter.ConvertedTime, err = dateparse.ParseAny(convertedTime)
-					if err != nil {
-						rc.Close()
-						return nil, fmt.Errorf("failed to parse converted time: %w", err)
-					}
-					chapter.IsConverted = true
-				}
-			} else {
-				// Read the file contents for page
-				buf := new(bytes.Buffer)
-				_, err = io.Copy(buf, rc)
-				if err != nil {
-					rc.Close()
-					return nil, fmt.Errorf("failed to read file contents: %w", err)
-				}
-
-				// Create a new Page object
-				page := &packer.Page{
-					Index:      uint16(len(chapter.Pages)), // Simple index based on order
-					Extension:  ext,
-					Size:       uint64(buf.Len()),
-					Contents:   buf,
-					IsSplitted: false,
-				}
-
-				// Add the page to the chapter
-				chapter.Pages = append(chapter.Pages, page)
-			}
-			rc.Close()
+		if f.FileInfo().IsDir() {
+			continue
 		}
+		// Open the file inside the zip
+		rc, err := f.Open()
+		if err != nil {
+			return nil, fmt.Errorf("failed to open file inside .cbz: %w", err)
+		}
+
+		// Determine the file extension
+		ext := strings.ToLower(filepath.Ext(f.Name))
+
+		if ext == ".xml" && strings.ToLower(filepath.Base(f.Name)) == "comicinfo.xml" {
+			// Read the ComicInfo.xml file content
+			xmlContent, err := io.ReadAll(rc)
+			if err != nil {
+				rc.Close()
+				return nil, fmt.Errorf("failed to read ComicInfo.xml content: %w", err)
+			}
+			chapter.ComicInfoXml = string(xmlContent)
+		} else if ext == ".txt" && strings.ToLower(filepath.Base(f.Name)) == "converted.txt" {
+			textContent, err := io.ReadAll(rc)
+			if err != nil {
+				rc.Close()
+				return nil, fmt.Errorf("failed to read Converted.xml content: %w", err)
+			}
+			scanner := bufio.NewScanner(bytes.NewReader(textContent))
+			if scanner.Scan() {
+				convertedTime := scanner.Text()
+				chapter.ConvertedTime, err = dateparse.ParseAny(convertedTime)
+				if err != nil {
+					rc.Close()
+					return nil, fmt.Errorf("failed to parse converted time: %w", err)
+				}
+				chapter.IsConverted = true
+			}
+		} else {
+			// Read the file contents for page
+			buf := new(bytes.Buffer)
+			_, err = io.Copy(buf, rc)
+			if err != nil {
+				rc.Close()
+				return nil, fmt.Errorf("failed to read file contents: %w", err)
+			}
+
+			// Create a new Page object
+			page := &packer.Page{
+				Index:      uint16(len(chapter.Pages)), // Simple index based on order
+				Extension:  ext,
+				Size:       uint64(buf.Len()),
+				Contents:   buf,
+				IsSplitted: false,
+			}
+
+			// Add the page to the chapter
+			chapter.Pages = append(chapter.Pages, page)
+		}
+		rc.Close()
+
 	}
 
 	return chapter, nil
