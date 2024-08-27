@@ -57,5 +57,17 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 		}
 	}
 
+	if chapter.IsConverted {
+		convertedWriter, err := zipWriter.Create("Converted.txt")
+		if err != nil {
+			return fmt.Errorf("failed to create Converted.txt in .cbz: %w", err)
+		}
+
+		_, err = convertedWriter.Write([]byte(fmt.Sprintf("%s\nThis chapter has been converted by CBZOptimizer.", chapter.ConvertedTime)))
+		if err != nil {
+			return fmt.Errorf("failed to write Converted.txt contents: %w", err)
+		}
+	}
+
 	return nil
 }

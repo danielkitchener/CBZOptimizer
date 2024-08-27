@@ -3,10 +3,11 @@ package cbz
 import (
 	"CBZOptimizer/packer"
 	"archive/zip"
+	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/araddon/dateparse"
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
@@ -36,12 +37,28 @@ func LoadChapter(filePath string) (*packer.Chapter, error) {
 
 			if ext == ".xml" && strings.ToLower(filepath.Base(f.Name)) == "comicinfo.xml" {
 				// Read the ComicInfo.xml file content
-				xmlContent, err := ioutil.ReadAll(rc)
+				xmlContent, err := io.ReadAll(rc)
 				if err != nil {
 					rc.Close()
 					return nil, fmt.Errorf("failed to read ComicInfo.xml content: %w", err)
 				}
 				chapter.ComicInfoXml = string(xmlContent)
+			} else if ext == ".txt" && strings.ToLower(filepath.Base(f.Name)) == "converted.txt" {
+				textContent, err := io.ReadAll(rc)
+				if err != nil {
+					rc.Close()
+					return nil, fmt.Errorf("failed to read Converted.xml content: %w", err)
+				}
+				scanner := bufio.NewScanner(bytes.NewReader(textContent))
+				if scanner.Scan() {
+					convertedTime := scanner.Text()
+					chapter.ConvertedTime, err = dateparse.ParseAny(convertedTime)
+					if err != nil {
+						rc.Close()
+						return nil, fmt.Errorf("failed to parse converted time: %w", err)
+					}
+					chapter.IsConverted = true
+				}
 			} else {
 				// Read the file contents for page
 				buf := new(bytes.Buffer)

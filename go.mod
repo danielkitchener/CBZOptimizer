@@ -3,6 +3,7 @@ module CBZOptimizer
 go 1.23
 
 require (
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/nickalie/go-binwrapper v0.0.0-20190114141239-525121d43c84
 	github.com/nickalie/go-webpbin v0.0.0-20220110095747-f10016bf2dc1
 	github.com/oliamb/cutter v0.2.2

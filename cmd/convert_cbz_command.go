@@ -71,6 +71,11 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 					continue
 				}
 
+				if chapter.IsConverted {
+					fmt.Printf("Chapter already converted: %s\n", path)
+					continue
+				}
+
 				// Convert the chapter
 				convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string) {
 					fmt.Println(msg)
@@ -79,6 +84,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 					fmt.Printf("Failed to convert chapter: %v\n", err)
 					continue
 				}
+				convertedChapter.SetConverted()
 
 				// Write the converted chapter back to a CBZ file
 				outputPath := path
