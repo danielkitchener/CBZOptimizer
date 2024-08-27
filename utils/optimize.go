@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/cbz"
 	"github.com/belphemur/CBZOptimizer/converter"
+	"log"
 	"strings"
 )
 
 // Optimize optimizes a CBZ file using the specified converter.
 func Optimize(chapterConverter converter.Converter, path string, quality uint8, override bool) error {
-	fmt.Printf("Processing file: %s\n", path)
+	log.Printf("Processing file: %s\n", path)
 
 	// Load the chapter
 	chapter, err := cbz.LoadChapter(path)
@@ -18,13 +19,13 @@ func Optimize(chapterConverter converter.Converter, path string, quality uint8, 
 	}
 
 	if chapter.IsConverted {
-		fmt.Printf("Chapter already converted: %s\n", path)
+		log.Printf("Chapter already converted: %s", path)
 		return nil
 	}
 
 	// Convert the chapter
 	convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string) {
-		fmt.Println(msg)
+		log.Printf("[%s]%s", path, msg)
 	})
 	if err != nil {
 		return fmt.Errorf("failed to convert chapter: %v", err)
@@ -41,7 +42,7 @@ func Optimize(chapterConverter converter.Converter, path string, quality uint8, 
 		return fmt.Errorf("failed to write converted chapter: %v", err)
 	}
 
-	fmt.Printf("Converted file written to: %s\n", outputPath)
+	log.Printf("Converted file written to: %s\n", outputPath)
 	return nil
 
 }
