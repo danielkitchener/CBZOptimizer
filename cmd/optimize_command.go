@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/converter"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
-	"github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/utils"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag/v2"
 	"os"
@@ -38,22 +38,13 @@ func init() {
 	AddCommand(command)
 }
 
-// isValidFolder checks if the provided path is a valid directory
-func isValidFolder(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return info.IsDir()
-}
-
 func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	path := args[0]
 	if path == "" {
 		return fmt.Errorf("path is required")
 	}
 
-	if !isValidFolder(path) {
+	if !utils.IsValidFolder(path) {
 		return fmt.Errorf("the path needs to be a folder")
 	}
 
@@ -95,7 +86,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 		go func() {
 			defer wg.Done()
 			for path := range fileChan {
-				err := manga.Optimize(chapterConverter, path, quality, override)
+				err := utils.Optimize(chapterConverter, path, quality, override)
 				if err != nil {
 					errorChan <- fmt.Errorf("error processing file %s: %w", path, err)
 				}

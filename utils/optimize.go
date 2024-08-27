@@ -1,4 +1,4 @@
-package manga
+package utils
 
 import (
 	"fmt"

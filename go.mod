@@ -4,8 +4,9 @@ go 1.23.0
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/belphemur/go-webpbin v0.0.0-20240827154654-457b3fe588c4
+	github.com/belphemur/go-webpbin/v2 v2.0.0
 	github.com/oliamb/cutter v0.2.2
+	github.com/pablodz/inotifywaitgo v0.0.7
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0

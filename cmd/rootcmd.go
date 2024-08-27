@@ -5,6 +5,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
+	"path/filepath"
+	"runtime"
 )
 
 var rootCmd = &cobra.Command{
@@ -12,14 +14,35 @@ var rootCmd = &cobra.Command{
 	Short: "Convert CBZ files using a specified converter",
 }
 
+func getPath() string {
+	return filepath.Join(map[string]string{
+		"windows": filepath.Join(os.Getenv("APPDATA")),
+		"darwin":  filepath.Join(os.Getenv("HOME"), ".config"),
+		"linux":   filepath.Join(os.Getenv("HOME"), ".config"),
+	}[runtime.GOOS], "CBZOptimizer")
+}
+
 func init() {
-	viper.SetConfigName("CBZOptimizer")
+	configFolder := getPath()
+
+	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
+	viper.AddConfigPath(configFolder)
 	viper.SetEnvPrefix("CBZ")
 	viper.AutomaticEnv()
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
+	err := os.MkdirAll(configFolder, os.ModePerm)
+	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			err := viper.SafeWriteConfig()
+			if err != nil {
+				panic(fmt.Errorf("fatal error config file: %w", err))
+			}
+		} else {
+			panic(fmt.Errorf("fatal error config file: %w", err))
+		}
 	}
 }
 

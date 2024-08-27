@@ -1,7 +1,7 @@
 package webp
 
 import (
-	"github.com/belphemur/go-webpbin"
+	"github.com/belphemur/go-webpbin/v2"
 	"image"
 	"io"
 )

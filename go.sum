@@ -4,8 +4,8 @@ github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de h1:FxWPpzIjnTlhP
 github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de/go.mod h1:DCaWoUhZrYW9p1lxo/cm8EmUOOzAPSEZNGF2DK1dJgw=
 github.com/belphemur/go-binwrapper v0.0.0-20240827152605-33977349b1f0 h1:EzKgPYK90TyAOmytK7bvapqlkG/m7KWKK28mOAdQEaM=
 github.com/belphemur/go-binwrapper v0.0.0-20240827152605-33977349b1f0/go.mod h1:s2Dv+CfgVbNM9ucqvE5qCCC0AkI1PE2OZb7N8PPlOh4=
-github.com/belphemur/go-webpbin v0.0.0-20240827154654-457b3fe588c4 h1:Xyf8bTqdR1tIGs4u3LLfUvXfPoVM6A+jHp6Vt/vqHec=
-github.com/belphemur/go-webpbin v0.0.0-20240827154654-457b3fe588c4/go.mod h1:lDnzHELZjEX11ccC5WnVHwMRlbX1E2tsQxfnvG32rN4=
+github.com/belphemur/go-webpbin/v2 v2.0.0 h1:Do0TTTJ6cS6lgi+R67De+jXRYe+ZOwxFqTiFggyX5p8=
+github.com/belphemur/go-webpbin/v2 v2.0.0/go.mod h1:VIHXZQaIwaIYDn08w0qeJFPj1MuYt5pyJnkQALPYc5g=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -58,6 +58,8 @@ github.com/onsi/ginkgo/v2 v2.13.0 h1:0jY9lJquiL8fcf3M4LAXN5aMlS/b2BV86HFFPCPMgE4
 github.com/onsi/ginkgo/v2 v2.13.0/go.mod h1:TE309ZR8s5FsKKpuB1YAQYBzCaAfUgatB/xlT/ETL/o=
 github.com/onsi/gomega v1.28.1 h1:MijcGUbfYuznzK/5R4CPNoUP/9Xvuo20sXfEm6XxoTA=
 github.com/onsi/gomega v1.28.1/go.mod h1:9sxs+SwGrKI0+PWe4Fxa9tFQQBG5xSsSbMXOI8PPpoQ=
+github.com/pablodz/inotifywaitgo v0.0.7 h1:1ii49dGBnRn0t1Sz7RGZS6/NberPEDQprwKHN49Bv6U=
+github.com/pablodz/inotifywaitgo v0.0.7/go.mod h1:OtzRCsYTJlIr+vAzlOtauTkfQ1c25ebFuXq8tbbf8cw=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
 github.com/pelletier/go-toml/v2 v2.2.2/go.mod h1:1t835xjRzz80PqgE6HHgN2JOsmgYu/h4qDAS4n929Rs=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
