@@ -21,7 +21,11 @@ jobs:
         run: go mod tidy
         
       - name: Install Junit reporter
-        run: go get -u github.com/jstemmer/go-junit-report/v2
+        run: |
+          wget https://github.com/jstemmer/go-junit-report/releases/download/v2.1.0/go-junit-report-v2.1.0-linux-amd64.tar.gz && \
+          tar -xzf go-junit-report-v2.1.0-linux-amd64.tar.gz && \
+          chmod +x go-junit-report && \
+          mv go-junit-report /usr/local/bin/
 
       - name: Run tests
         run: go test -v 2>&1 ./... -coverprofile=coverage.txt | go-junit-report -set-exit-code > junit.xml
