@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/cbz"
 	"github.com/belphemur/CBZOptimizer/converter"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag/v2"
 	"os"
@@ -95,42 +95,10 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 		go func() {
 			defer wg.Done()
 			for path := range fileChan {
-				fmt.Printf("Processing file: %s\n", path)
-
-				// Load the chapter
-				chapter, err := cbz.LoadChapter(path)
+				err := manga.Optimize(chapterConverter, path, quality, override)
 				if err != nil {
-					errorChan <- fmt.Errorf("failed to load chapter: %v", err)
-					continue
+					errorChan <- fmt.Errorf("error processing file %s: %w", path, err)
 				}
-
-				if chapter.IsConverted {
-					fmt.Printf("Chapter already converted: %s\n", path)
-					continue
-				}
-
-				// Convert the chapter
-				convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string) {
-					fmt.Println(msg)
-				})
-				if err != nil {
-					errorChan <- fmt.Errorf("failed to convert chapter: %v", err)
-					continue
-				}
-				convertedChapter.SetConverted()
-
-				// Write the converted chapter back to a CBZ file
-				outputPath := path
-				if !override {
-					outputPath = strings.TrimSuffix(path, ".cbz") + "_converted.cbz"
-				}
-				err = cbz.WriteChapterToCBZ(convertedChapter, outputPath)
-				if err != nil {
-					errorChan <- fmt.Errorf("failed to write converted chapter: %v", err)
-					continue
-				}
-
-				fmt.Printf("Converted file written to: %s\n", outputPath)
 			}
 		}()
 	}
