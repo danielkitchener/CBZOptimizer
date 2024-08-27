@@ -5,13 +5,23 @@ release:
   github:
     owner: belphemur
     name: CBZOptimizer
-    changelog:
-      sort: asc
-      filters:
-        exclude:
-          - '^docs:'
-          - '^test:'
-          - '^chore:'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Performance"
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
 builds:
   - id: cbzoptimizer
     main: main.go
