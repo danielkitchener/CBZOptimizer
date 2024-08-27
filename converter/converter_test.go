@@ -1,4 +1,4 @@
-package webp
+package converter
 
 import (
 	"bytes"
@@ -35,33 +35,40 @@ func TestConvertChapter(t *testing.T) {
 
 	}
 	defer os.Remove(temp.Name())
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			chapter, err := tc.genTestChapter(temp.Name())
-			if err != nil {
-				t.Fatalf("failed to load test genTestChapter: %v", err)
-			}
+	for _, converter := range Available() {
+		converter, err := Get(converter)
+		if err != nil {
+			t.Fatalf("failed to get converter: %v", err)
+		}
+		t.Run(converter.Format().String(), func(t *testing.T) {
+			for _, tc := range testCases {
+				t.Run(tc.name, func(t *testing.T) {
+					chapter, err := tc.genTestChapter(temp.Name())
+					if err != nil {
+						t.Fatalf("failed to load test genTestChapter: %v", err)
+					}
 
-			converter := New()
-			quality := uint8(80)
+					quality := uint8(80)
 
-			progress := func(msg string) {
-				t.Log(msg)
-			}
+					progress := func(msg string) {
+						t.Log(msg)
+					}
 
-			convertedChapter, err := converter.ConvertChapter(chapter, quality, progress)
-			if err != nil {
-				t.Fatalf("failed to convert genTestChapter: %v", err)
-			}
+					convertedChapter, err := converter.ConvertChapter(chapter, quality, progress)
+					if err != nil {
+						t.Fatalf("failed to convert genTestChapter: %v", err)
+					}
 
-			if len(convertedChapter.Pages) == 0 {
-				t.Fatalf("no pages were converted")
-			}
+					if len(convertedChapter.Pages) == 0 {
+						t.Fatalf("no pages were converted")
+					}
 
-			for _, page := range convertedChapter.Pages {
-				if page.Extension != ".webp" {
-					t.Errorf("page %d was not converted to webp format", page.Index)
-				}
+					for _, page := range convertedChapter.Pages {
+						if page.Extension != ".webp" {
+							t.Errorf("page %d was not converted to webp format", page.Index)
+						}
+					}
+				})
 			}
 		})
 	}
