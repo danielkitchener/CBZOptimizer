@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
-	packer2 "github.com/belphemur/CBZOptimizer/packer"
+	packer2 "github.com/belphemur/CBZOptimizer/manga"
 	"github.com/oliamb/cutter"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"

@@ -3,7 +3,7 @@ package cbz
 import (
 	"archive/zip"
 	"bytes"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"os"
 	"testing"
 	"time"
@@ -13,14 +13,14 @@ func TestWriteChapterToCBZ(t *testing.T) {
 	// Define test cases
 	testCases := []struct {
 		name          string
-		chapter       *packer.Chapter
+		chapter       *manga.Chapter
 		expectedFiles []string
 	}{
 		//test case where there is only one page and ComicInfo and the chapter is converted
 		{
 			name: "Single page, ComicInfo, converted",
-			chapter: &packer.Chapter{
-				Pages: []*packer.Page{
+			chapter: &manga.Chapter{
+				Pages: []*manga.Page{
 					{
 						Index:     0,
 						Extension: ".jpg",
@@ -36,8 +36,8 @@ func TestWriteChapterToCBZ(t *testing.T) {
 		//test case where there is only one page and no
 		{
 			name: "Single page, no ComicInfo",
-			chapter: &packer.Chapter{
-				Pages: []*packer.Page{
+			chapter: &manga.Chapter{
+				Pages: []*manga.Page{
 					{
 						Index:     0,
 						Extension: ".jpg",
@@ -49,8 +49,8 @@ func TestWriteChapterToCBZ(t *testing.T) {
 		},
 		{
 			name: "Multiple pages with ComicInfo",
-			chapter: &packer.Chapter{
-				Pages: []*packer.Page{
+			chapter: &manga.Chapter{
+				Pages: []*manga.Page{
 					{
 						Index:     0,
 						Extension: ".jpg",
@@ -68,8 +68,8 @@ func TestWriteChapterToCBZ(t *testing.T) {
 		},
 		{
 			name: "Split page",
-			chapter: &packer.Chapter{
-				Pages: []*packer.Page{
+			chapter: &manga.Chapter{
+				Pages: []*manga.Page{
 					{
 						Index:          0,
 						Extension:      ".jpg",

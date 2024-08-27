@@ -4,7 +4,7 @@ import (
 	"github.com/belphemur/CBZOptimizer/cbz"
 	"github.com/belphemur/CBZOptimizer/converter"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -21,7 +21,7 @@ func (m *MockConverter) Format() constant.ConversionFormat {
 	return constant.WebP
 }
 
-func (m *MockConverter) ConvertChapter(chapter *packer.Chapter, quality uint8, progress func(string)) (*packer.Chapter, error) {
+func (m *MockConverter) ConvertChapter(chapter *manga.Chapter, quality uint8, progress func(string)) (*manga.Chapter, error) {
 	// Simulate conversion by setting the IsConverted flag
 	chapter.IsConverted = true
 	chapter.ConvertedTime = time.Now()

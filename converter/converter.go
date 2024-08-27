@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/belphemur/CBZOptimizer/converter/webp"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"github.com/samber/lo"
 	"strings"
 )
@@ -12,7 +12,7 @@ import (
 type Converter interface {
 	// Format of the converter
 	Format() (format constant.ConversionFormat)
-	ConvertChapter(chapter *packer.Chapter, quality uint8, progress func(string)) (*packer.Chapter, error)
+	ConvertChapter(chapter *manga.Chapter, quality uint8, progress func(string)) (*manga.Chapter, error)
 	PrepareConverter() error
 }
 

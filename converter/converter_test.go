@@ -2,7 +2,7 @@ package converter
 
 import (
 	"bytes"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"image"
 	"image/jpeg"
 	"os"
@@ -13,7 +13,7 @@ func TestConvertChapter(t *testing.T) {
 
 	testCases := []struct {
 		name           string
-		genTestChapter func(path string) (*packer.Chapter, error)
+		genTestChapter func(path string) (*manga.Chapter, error)
 	}{
 		{
 			name:           "All split pages",
@@ -74,14 +74,14 @@ func TestConvertChapter(t *testing.T) {
 	}
 }
 
-func genBigPages(path string) (*packer.Chapter, error) {
+func genBigPages(path string) (*manga.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	var pages []*packer.Page
+	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
 		img := image.NewRGBA(image.Rect(0, 0, 300, 10000))
 		buf := new(bytes.Buffer)
@@ -89,7 +89,7 @@ func genBigPages(path string) (*packer.Chapter, error) {
 		if err != nil {
 			return nil, err
 		}
-		page := &packer.Page{
+		page := &manga.Page{
 			Index:     uint16(i),
 			Contents:  buf,
 			Extension: ".jpg",
@@ -97,20 +97,20 @@ func genBigPages(path string) (*packer.Chapter, error) {
 		pages = append(pages, page)
 	}
 
-	return &packer.Chapter{
+	return &manga.Chapter{
 		FilePath: path,
 		Pages:    pages,
 	}, nil
 }
 
-func genSmallPages(path string) (*packer.Chapter, error) {
+func genSmallPages(path string) (*manga.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	var pages []*packer.Page
+	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
 		img := image.NewRGBA(image.Rect(0, 0, 300, 1000))
 		buf := new(bytes.Buffer)
@@ -118,7 +118,7 @@ func genSmallPages(path string) (*packer.Chapter, error) {
 		if err != nil {
 			return nil, err
 		}
-		page := &packer.Page{
+		page := &manga.Page{
 			Index:     uint16(i),
 			Contents:  buf,
 			Extension: ".jpg",
@@ -126,20 +126,20 @@ func genSmallPages(path string) (*packer.Chapter, error) {
 		pages = append(pages, page)
 	}
 
-	return &packer.Chapter{
+	return &manga.Chapter{
 		FilePath: path,
 		Pages:    pages,
 	}, nil
 }
 
-func genMixSmallBig(path string) (*packer.Chapter, error) {
+func genMixSmallBig(path string) (*manga.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	var pages []*packer.Page
+	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
 		img := image.NewRGBA(image.Rect(0, 0, 300, 1000*(i+1)))
 		buf := new(bytes.Buffer)
@@ -147,7 +147,7 @@ func genMixSmallBig(path string) (*packer.Chapter, error) {
 		if err != nil {
 			return nil, err
 		}
-		page := &packer.Page{
+		page := &manga.Page{
 			Index:     uint16(i),
 			Contents:  buf,
 			Extension: ".jpg",
@@ -155,7 +155,7 @@ func genMixSmallBig(path string) (*packer.Chapter, error) {
 		pages = append(pages, page)
 	}
 
-	return &packer.Chapter{
+	return &manga.Chapter{
 		FilePath: path,
 		Pages:    pages,
 	}, nil

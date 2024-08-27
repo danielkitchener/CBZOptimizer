@@ -3,12 +3,12 @@ package cbz
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"os"
 	"time"
 )
 
-func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
+func WriteChapterToCBZ(chapter *manga.Chapter, outputFilePath string) error {
 	// Create a new ZIP file
 	zipFile, err := os.Create(outputFilePath)
 	if err != nil {

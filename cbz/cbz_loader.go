@@ -6,13 +6,13 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/araddon/dateparse"
-	"github.com/belphemur/CBZOptimizer/packer"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"io"
 	"path/filepath"
 	"strings"
 )
 
-func LoadChapter(filePath string) (*packer.Chapter, error) {
+func LoadChapter(filePath string) (*manga.Chapter, error) {
 	// Open the .cbz file
 	r, err := zip.OpenReader(filePath)
 	if err != nil {
@@ -20,7 +20,7 @@ func LoadChapter(filePath string) (*packer.Chapter, error) {
 	}
 	defer r.Close()
 
-	chapter := &packer.Chapter{
+	chapter := &manga.Chapter{
 		FilePath: filePath,
 	}
 
@@ -71,7 +71,7 @@ func LoadChapter(filePath string) (*packer.Chapter, error) {
 			}
 
 			// Create a new Page object
-			page := &packer.Page{
+			page := &manga.Page{
 				Index:      uint16(len(chapter.Pages)), // Simple index based on order
 				Extension:  ext,
 				Size:       uint64(buf.Len()),
