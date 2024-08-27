@@ -108,7 +108,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Walk the path and send files to the channel
-	err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	err = filepath.WalkDir(path, func(path string, info os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
