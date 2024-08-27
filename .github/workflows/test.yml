@@ -19,10 +19,14 @@ jobs:
 
       - name: Install dependencies
         run: go mod tidy
+        
+      - name: Install Junit reporter
+        run: go get -u github.com/jstemmer/go-junit-report/v2
 
       - name: Run tests
-        run: go test ./... -v -coverprofile=coverage.txt
+        run: go test -v 2>&1 ./... -coverprofile=coverage.txt | go-junit-report -set-exit-code > junit.xml
       - name: Upload results to Codecov
+        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
