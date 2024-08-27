@@ -13,6 +13,7 @@ type Converter interface {
 	// Format of the converter
 	Format() (format constant.ConversionFormat)
 	ConvertChapter(chapter *packer.Chapter, quality uint8, progress func(string)) (*packer.Chapter, error)
+	PrepareConverter() error
 }
 
 var converters = map[constant.ConversionFormat]Converter{

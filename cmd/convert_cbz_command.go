@@ -50,6 +50,11 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get chapterConverter: %v", err)
 	}
+
+	err = chapterConverter.PrepareConverter()
+	if err != nil {
+		return fmt.Errorf("failed to prepare converter: %v", err)
+	}
 	// Channel to manage the files to process
 	fileChan := make(chan string)
 

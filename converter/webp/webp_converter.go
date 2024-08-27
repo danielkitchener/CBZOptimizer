@@ -21,6 +21,7 @@ import (
 type Converter struct {
 	maxHeight  int
 	cropHeight int
+	isPrepared bool
 }
 
 func (converter *Converter) Format() (format constant.ConversionFormat) {
@@ -32,11 +33,24 @@ func New() *Converter {
 		//maxHeight: 16383 / 2,
 		maxHeight:  4000,
 		cropHeight: 2000,
+		isPrepared: false,
 	}
 }
 
-func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uint8, progress func(string)) (*packer2.Chapter, error) {
+func (converter *Converter) PrepareConverter() error {
+	if converter.isPrepared {
+		return nil
+	}
 	err := PrepareEncoder()
+	if err != nil {
+		return err
+	}
+	converter.isPrepared = true
+	return nil
+}
+
+func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uint8, progress func(string)) (*packer2.Chapter, error) {
+	err := converter.PrepareConverter()
 	if err != nil {
 		return nil, err
 	}
