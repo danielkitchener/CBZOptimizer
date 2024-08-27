@@ -12,7 +12,6 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	"io"
-	"log"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -59,6 +58,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 	maxGoroutines := runtime.NumCPU()
 
 	pagesChan := make(chan *packer2.PageContainer, maxGoroutines)
+	errChan := make(chan error, maxGoroutines)
 
 	var wgPages sync.WaitGroup
 	wgPages.Add(len(chapter.Pages))
@@ -78,6 +78,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 					buffer := new(bytes.Buffer)
 					err := png.Encode(buffer, convertedPage.Image)
 					if err != nil {
+						errChan <- err
 						<-guard
 						return
 					}
@@ -91,7 +92,6 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 				pagesMutex.Unlock()
 				<-guard
 			}(page)
-
 		}
 	}()
 
@@ -101,7 +101,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page)
 			if err != nil {
-				log.Fatalf("error checking if page %d d of chapter %s  needs split: %v", page.Index, chapter.FilePath, err)
+				errChan <- fmt.Errorf("error checking if page %d of chapter %s needs split: %v", page.Index, chapter.FilePath, err)
 				return
 			}
 
@@ -112,7 +112,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 			}
 			images, err := converter.cropImage(img)
 			if err != nil {
-				log.Fatalf("error converting page %d of chapter %s to webp: %v", page.Index, chapter.FilePath, err)
+				errChan <- fmt.Errorf("error converting page %d of chapter %s to webp: %v", page.Index, chapter.FilePath, err)
 				return
 			}
 
@@ -123,12 +123,21 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 				pagesChan <- packer2.NewContainer(page, img, "N/A")
 			}
 		}(page)
-
 	}
 
 	wgPages.Wait()
 	wgConvertedPages.Wait()
 	close(pagesChan)
+	close(errChan)
+
+	var errList []error
+	for err := range errChan {
+		errList = append(errList, err)
+	}
+
+	if len(errList) > 0 {
+		return nil, fmt.Errorf("encountered errors: %v", errList)
+	}
 
 	slices.SortFunc(pages, func(a, b *packer2.Page) int {
 		if a.Index == b.Index {

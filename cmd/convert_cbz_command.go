@@ -83,6 +83,8 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	}
 	// Channel to manage the files to process
 	fileChan := make(chan string)
+	// Channel to collect errors
+	errorChan := make(chan error, parallelism)
 
 	// WaitGroup to wait for all goroutines to finish
 	var wg sync.WaitGroup
@@ -98,7 +100,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 				// Load the chapter
 				chapter, err := cbz.LoadChapter(path)
 				if err != nil {
-					fmt.Printf("Failed to load chapter: %v\n", err)
+					errorChan <- fmt.Errorf("failed to load chapter: %v", err)
 					continue
 				}
 
@@ -112,7 +114,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 					fmt.Println(msg)
 				})
 				if err != nil {
-					fmt.Printf("Failed to convert chapter: %v\n", err)
+					errorChan <- fmt.Errorf("failed to convert chapter: %v", err)
 					continue
 				}
 				convertedChapter.SetConverted()
@@ -124,7 +126,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 				}
 				err = cbz.WriteChapterToCBZ(convertedChapter, outputPath)
 				if err != nil {
-					fmt.Printf("Failed to write converted chapter: %v\n", err)
+					errorChan <- fmt.Errorf("failed to write converted chapter: %v", err)
 					continue
 				}
 
@@ -150,8 +152,18 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error walking the path: %w", err)
 	}
 
-	close(fileChan) // Close the channel to signal workers to stop
-	wg.Wait()       // Wait for all workers to finish
+	close(fileChan)  // Close the channel to signal workers to stop
+	wg.Wait()        // Wait for all workers to finish
+	close(errorChan) // Close the error channel
+
+	var errs []error
+	for err := range errorChan {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered errors: %v", errs)
+	}
 
 	return nil
 }
