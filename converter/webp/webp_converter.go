@@ -75,6 +75,11 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 				defer wgConvertedPages.Done()
 				convertedPage, err := converter.convertPage(pageToConvert, quality)
 				if err != nil {
+					if convertedPage == nil {
+						errChan <- err
+						<-guard
+						return
+					}
 					buffer := new(bytes.Buffer)
 					err := png.Encode(buffer, convertedPage.Image)
 					if err != nil {
@@ -101,7 +106,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page)
 			if err != nil {
-				errChan <- fmt.Errorf("error checking if page %d of chapter %s needs split: %v", page.Index, chapter.FilePath, err)
+				errChan <- fmt.Errorf("error checking if page %d of genTestChapter %s needs split: %v", page.Index, chapter.FilePath, err)
 				return
 			}
 
@@ -112,7 +117,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 			}
 			images, err := converter.cropImage(img)
 			if err != nil {
-				errChan <- fmt.Errorf("error converting page %d of chapter %s to webp: %v", page.Index, chapter.FilePath, err)
+				errChan <- fmt.Errorf("error converting page %d of genTestChapter %s to webp: %v", page.Index, chapter.FilePath, err)
 				return
 			}
 
