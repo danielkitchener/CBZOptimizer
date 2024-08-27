@@ -6,6 +6,7 @@ import (
 	"github.com/belphemur/CBZOptimizer/packer"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestWriteChapterToCBZ(t *testing.T) {
@@ -15,6 +16,24 @@ func TestWriteChapterToCBZ(t *testing.T) {
 		chapter       *packer.Chapter
 		expectedFiles []string
 	}{
+		//test case where there is only one page and ComicInfo and the chapter is converted
+		{
+			name: "Single page, ComicInfo, converted",
+			chapter: &packer.Chapter{
+				Pages: []*packer.Page{
+					{
+						Index:     0,
+						Extension: ".jpg",
+						Contents:  bytes.NewBuffer([]byte("image data")),
+					},
+				},
+				ComicInfoXml:  "<Series>Boundless Necromancer</Series>",
+				IsConverted:   true,
+				ConvertedTime: time.Now(),
+			},
+			expectedFiles: []string{"page_0000.jpg", "ComicInfo.xml", "Converted.txt"},
+		},
+		//test case where there is only one page and no
 		{
 			name: "Single page, no ComicInfo",
 			chapter: &packer.Chapter{
