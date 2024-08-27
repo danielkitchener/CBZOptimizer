@@ -32,7 +32,7 @@ func init() {
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	_ = viper.BindPFlag("quality", command.Flags().Lookup("quality"))
 
-	command.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	command.Flags().BoolP("override", "o", true, "Override the original CBZ files")
 	_ = viper.BindPFlag("override", command.Flags().Lookup("override"))
 
 	command.PersistentFlags().VarP(
