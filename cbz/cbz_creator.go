@@ -25,10 +25,10 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 		var fileName string
 		if page.IsSplitted {
 			// Use the format page%03d-%02d for split pages
-			fileName = fmt.Sprintf("page_%03d-%02d%s", page.Index, page.SplitPartIndex, page.Extension)
+			fileName = fmt.Sprintf("page_%04d-%02d%s", page.Index, page.SplitPartIndex, page.Extension)
 		} else {
 			// Use the format page%03d for non-split pages
-			fileName = fmt.Sprintf("page_%03d%s", page.Index, page.Extension)
+			fileName = fmt.Sprintf("page_%04d%s", page.Index, page.Extension)
 		}
 
 		// Create a new file in the ZIP archive
