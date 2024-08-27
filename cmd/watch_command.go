@@ -44,7 +44,7 @@ func init() {
 
 	AddCommand(command)
 }
-func WatchCommand(cmd *cobra.Command, args []string) error {
+func WatchCommand(_ *cobra.Command, args []string) error {
 	path := args[0]
 	if path == "" {
 		return fmt.Errorf("path is required")
