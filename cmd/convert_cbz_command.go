@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"CBZOptimizer/cbz"
-	"CBZOptimizer/converter"
-	"CBZOptimizer/converter/constant"
 	"fmt"
+	"github.com/belphemur/CBZOptimizer/cbz"
+	"github.com/belphemur/CBZOptimizer/converter"
+	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag/v2"
 	"os"

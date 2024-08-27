@@ -1,9 +1,9 @@
 package cbz
 
 import (
-	"CBZOptimizer/packer"
 	"archive/zip"
 	"fmt"
+	"github.com/belphemur/CBZOptimizer/packer"
 	"os"
 )
 

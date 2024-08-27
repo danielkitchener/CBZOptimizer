@@ -1,12 +1,12 @@
 package cbz
 
 import (
-	"CBZOptimizer/packer"
 	"archive/zip"
 	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/araddon/dateparse"
+	"github.com/belphemur/CBZOptimizer/packer"
 	"io"
 	"path/filepath"
 	"strings"

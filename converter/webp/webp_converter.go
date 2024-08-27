@@ -1,10 +1,10 @@
 package webp
 
 import (
-	"CBZOptimizer/converter/constant"
-	packer2 "CBZOptimizer/packer"
 	"bytes"
 	"fmt"
+	"github.com/belphemur/CBZOptimizer/converter/constant"
+	packer2 "github.com/belphemur/CBZOptimizer/packer"
 	"github.com/oliamb/cutter"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"

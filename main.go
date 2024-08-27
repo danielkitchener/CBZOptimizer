@@ -1,7 +1,7 @@
 package main
 
 import (
-	"CBZOptimizer/cmd"
+	"github.com/belphemur/CBZOptimizer/cmd"
 )
 
 func main() {

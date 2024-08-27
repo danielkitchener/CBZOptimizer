@@ -1,10 +1,10 @@
 package converter
 
 import (
-	"CBZOptimizer/converter/constant"
-	"CBZOptimizer/converter/webp"
-	"CBZOptimizer/packer"
 	"fmt"
+	"github.com/belphemur/CBZOptimizer/converter/constant"
+	"github.com/belphemur/CBZOptimizer/converter/webp"
+	"github.com/belphemur/CBZOptimizer/packer"
 	"github.com/samber/lo"
 	"strings"
 )

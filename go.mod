@@ -1,4 +1,4 @@
-module CBZOptimizer
+module github.com/belphemur/CBZOptimizer
 
 go 1.23
 
