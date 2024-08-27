@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/packer"
 	"os"
+	"time"
 )
 
 func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
@@ -36,7 +37,11 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 		}
 
 		// Create a new file in the ZIP archive
-		fileWriter, err := zipWriter.Create(fileName)
+		fileWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:     fileName,
+			Method:   zip.Store,
+			Modified: time.Now(),
+		})
 		if err != nil {
 			return fmt.Errorf("failed to create file in .cbz: %w", err)
 		}
@@ -50,7 +55,11 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 
 	// Optionally, write the ComicInfo.xml file if present
 	if chapter.ComicInfoXml != "" {
-		comicInfoWriter, err := zipWriter.Create("ComicInfo.xml")
+		comicInfoWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:     "ComicInfo.xml",
+			Method:   zip.Deflate,
+			Modified: time.Now(),
+		})
 		if err != nil {
 			return fmt.Errorf("failed to create ComicInfo.xml in .cbz: %w", err)
 		}
@@ -62,7 +71,11 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 	}
 
 	if chapter.IsConverted {
-		convertedWriter, err := zipWriter.Create("Converted.txt")
+		convertedWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:     "Converted.txt",
+			Method:   zip.Deflate,
+			Modified: time.Now(),
+		})
 		if err != nil {
 			return fmt.Errorf("failed to create Converted.txt in .cbz: %w", err)
 		}
