@@ -17,6 +17,10 @@ func WriteChapterToCBZ(chapter *packer.Chapter, outputFilePath string) error {
 
 	// Create a new ZIP writer
 	zipWriter := zip.NewWriter(zipFile)
+	err = zipWriter.SetComment("Created by CBZOptimizer")
+	if err != nil {
+		return err
+	}
 	defer zipWriter.Close()
 
 	// Write each page to the ZIP archive
