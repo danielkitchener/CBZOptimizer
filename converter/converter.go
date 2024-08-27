@@ -17,7 +17,7 @@ type Converter interface {
 }
 
 var converters = map[constant.ConversionFormat]Converter{
-	constant.ImageFormatWebP: webp.New(),
+	constant.WebP: webp.New(),
 }
 
 // Available returns a list of available converters.
@@ -28,11 +28,11 @@ func Available() []constant.ConversionFormat {
 // Get returns a packer by name.
 // If the packer is not available, an error is returned.
 func Get(name constant.ConversionFormat) (Converter, error) {
-	if packer, ok := converters[name]; ok {
-		return packer, nil
+	if converter, ok := converters[name]; ok {
+		return converter, nil
 	}
 
 	return nil, fmt.Errorf("unkown converter \"%s\", available options are %s", name, strings.Join(lo.Map(Available(), func(item constant.ConversionFormat, index int) string {
-		return string(item)
+		return item.String()
 	}), ", "))
 }

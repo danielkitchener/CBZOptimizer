@@ -25,6 +25,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/thediveo/enumflag/v2 v2.0.5 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/text v0.17.0 // indirect

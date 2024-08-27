@@ -6,29 +6,55 @@ import (
 	"CBZOptimizer/converter/constant"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/thediveo/enumflag/v2"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 )
 
+var converterType constant.ConversionFormat
+
 func init() {
 	command := &cobra.Command{
-		Use:   "convert",
-		Short: "Convert CBZ files using a specified converter",
+		Use:   "optimize [folder]",
+		Short: "Optimize all CBZ files in a folder recursively",
+		Long:  "Optimize all CBZ files in a folder recursively.\nIt will take all the different pages in the CBZ files and convert them to the given format.\nThe original CBZ files will be kept intact depending if you choose to override or not.",
 		RunE:  ConvertCbzCommand,
 		Args:  cobra.ExactArgs(1),
 	}
+	formatFlag := enumflag.New(&converterType, "format", constant.CommandValue, enumflag.EnumCaseInsensitive)
+	_ = formatFlag.RegisterCompletion(command, "format", constant.HelpText)
+
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	command.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	command.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	command.PersistentFlags().VarP(
+		formatFlag,
+		"format", "f",
+		fmt.Sprintf("Format to convert the images to: %s", constant.ListAll()))
+	command.PersistentFlags().Lookup("format").NoOptDefVal = constant.DefaultConversion.String()
+
 	AddCommand(command)
+}
+
+// isValidFolder checks if the provided path is a valid directory
+func isValidFolder(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
 }
 
 func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	path := args[0]
 	if path == "" {
 		return fmt.Errorf("path is required")
+	}
+
+	if !isValidFolder(path) {
+		return fmt.Errorf("the path needs to be a folder")
 	}
 
 	quality, err := cmd.Flags().GetUint8("quality")
@@ -46,7 +72,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid parallelism value")
 	}
 
-	chapterConverter, err := converter.Get(constant.ImageFormatWebP)
+	chapterConverter, err := converter.Get(converterType)
 	if err != nil {
 		return fmt.Errorf("failed to get chapterConverter: %v", err)
 	}

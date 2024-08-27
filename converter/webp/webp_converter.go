@@ -25,7 +25,7 @@ type Converter struct {
 }
 
 func (converter *Converter) Format() (format constant.ConversionFormat) {
-	return constant.ImageFormatWebP
+	return constant.WebP
 }
 
 func New() *Converter {
@@ -203,8 +203,8 @@ func (converter *Converter) convertPage(container *packer2.PageContainer, qualit
 	return container, nil
 }
 
-// convert converts an image to the ImageFormatWebP format. It decodes the image from the input buffer,
-// encodes it as a ImageFormatWebP file using the webp.Encode() function, and returns the resulting ImageFormatWebP
+// convert converts an image to the WebP format. It decodes the image from the input buffer,
+// encodes it as a WebP file using the webp.Encode() function, and returns the resulting WebP
 // file as a bytes.Buffer.
 func (converter *Converter) convert(image image.Image, quality uint) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
