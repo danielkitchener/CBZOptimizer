@@ -26,7 +26,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 					},
 				},
 			},
-			expectedFiles: []string{"page_000.jpg"},
+			expectedFiles: []string{"page_0000.jpg"},
 		},
 		{
 			name: "Multiple pages with ComicInfo",
@@ -45,7 +45,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 				},
 				ComicInfoXml: "<Series>Boundless Necromancer</Series>",
 			},
-			expectedFiles: []string{"page_000.jpg", "page_001.jpg", "ComicInfo.xml"},
+			expectedFiles: []string{"page_0000.jpg", "page_0001.jpg", "ComicInfo.xml"},
 		},
 		{
 			name: "Split page",
@@ -60,7 +60,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 					},
 				},
 			},
-			expectedFiles: []string{"page_000-01.jpg"},
+			expectedFiles: []string{"page_0000-01.jpg"},
 		},
 	}
 
