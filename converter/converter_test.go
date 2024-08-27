@@ -17,15 +17,15 @@ func TestConvertChapter(t *testing.T) {
 	}{
 		{
 			name:           "All split pages",
-			genTestChapter: loadTestChapterSplit,
+			genTestChapter: genBigPages,
 		},
 		{
 			name:           "No split pages",
-			genTestChapter: loadTestChapterNoSplit,
+			genTestChapter: genSmallPages,
 		},
 		{
 			name:           "Mix of split and no split pages",
-			genTestChapter: loadTestChapterMixSplit,
+			genTestChapter: genMixSmallBig,
 		},
 	}
 	// Load test genTestChapter from testdata
@@ -74,7 +74,7 @@ func TestConvertChapter(t *testing.T) {
 	}
 }
 
-func loadTestChapterSplit(path string) (*packer.Chapter, error) {
+func genBigPages(path string) (*packer.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func loadTestChapterSplit(path string) (*packer.Chapter, error) {
 	}, nil
 }
 
-func loadTestChapterNoSplit(path string) (*packer.Chapter, error) {
+func genSmallPages(path string) (*packer.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func loadTestChapterNoSplit(path string) (*packer.Chapter, error) {
 	}, nil
 }
 
-func loadTestChapterMixSplit(path string) (*packer.Chapter, error) {
+func genMixSmallBig(path string) (*packer.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
