@@ -108,7 +108,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page, split)
 			if err != nil {
-				errChan <- fmt.Errorf("error checking if page %d of genTestChapter %s needs split: %v", page.Index, chapter.FilePath, err)
+				errChan <- err
 				return
 			}
 
