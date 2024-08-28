@@ -14,6 +14,10 @@ var rootCmd = &cobra.Command{
 	Short: "Convert CBZ files using a specified converter",
 }
 
+func SetVersionInfo(version, commit, date string) {
+	rootCmd.Version = fmt.Sprintf("%s (Built on %s from Git SHA %s)", version, date, commit)
+}
+
 func getPath() string {
 	return filepath.Join(map[string]string{
 		"windows": filepath.Join(os.Getenv("APPDATA")),
