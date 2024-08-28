@@ -2,7 +2,9 @@ package converter
 
 import (
 	"bytes"
+	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/belphemur/CBZOptimizer/manga"
+	"golang.org/x/exp/slices"
 	"image"
 	"image/jpeg"
 	"os"
@@ -15,26 +17,31 @@ func TestConvertChapter(t *testing.T) {
 		name           string
 		genTestChapter func(path string) (*manga.Chapter, error)
 		split          bool
+		expectFailure  []constant.ConversionFormat
 	}{
 		{
 			name:           "All split pages",
 			genTestChapter: genBigPages,
 			split:          true,
+			expectFailure:  []constant.ConversionFormat{},
 		},
 		{
 			name:           "Big Pages, no split",
 			genTestChapter: genBigPages,
 			split:          false,
+			expectFailure:  []constant.ConversionFormat{constant.WebP},
 		},
 		{
 			name:           "No split pages",
 			genTestChapter: genSmallPages,
 			split:          false,
+			expectFailure:  []constant.ConversionFormat{},
 		},
 		{
 			name:           "Mix of split and no split pages",
 			genTestChapter: genMixSmallBig,
 			split:          true,
+			expectFailure:  []constant.ConversionFormat{},
 		},
 	}
 	// Load test genTestChapter from testdata
@@ -63,9 +70,15 @@ func TestConvertChapter(t *testing.T) {
 						t.Log(msg)
 					}
 
-					convertedChapter, err := converter.ConvertChapter(chapter, quality, false, progress)
+					convertedChapter, err := converter.ConvertChapter(chapter, quality, tc.split, progress)
 					if err != nil {
+						if slices.Contains(tc.expectFailure, converter.Format()) {
+							t.Logf("Expected failure to convert genTestChapter: %v", err)
+							return
+						}
 						t.Fatalf("failed to convert genTestChapter: %v", err)
+					} else if slices.Contains(tc.expectFailure, converter.Format()) {
+						t.Fatalf("expected failure to convert genTestChapter didn't happen")
 					}
 
 					if len(convertedChapter.Pages) == 0 {
