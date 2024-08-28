@@ -28,7 +28,15 @@ jobs:
           mv go-junit-report /usr/local/bin/
 
       - name: Run tests
-        run: go test -v 2>&1 ./... -coverprofile=coverage.txt | go-junit-report -set-exit-code > junit.xml
+        run: go test -v 2>&1 ./... -coverprofile=coverage.txt | tee test-results.txt
+      - name: Analyse test results
+        run: go-junit-report < test-results.txt > report.xml
+      - name: Upload test result artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: test-results.txt
+          retention-days: 7
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
         with:
