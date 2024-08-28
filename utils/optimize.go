@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/cbz"
 	"github.com/belphemur/CBZOptimizer/converter"
+	errors2 "github.com/belphemur/CBZOptimizer/converter/errors"
 	"log"
 	"strings"
 )
@@ -38,8 +40,15 @@ func Optimize(options *OptimizeOptions) error {
 		}
 	})
 	if err != nil {
-		return fmt.Errorf("failed to convert chapter: %v", err)
+		var pageIgnoredError *errors2.PageIgnoredError
+		if !errors.As(err, &pageIgnoredError) {
+			return fmt.Errorf("failed to convert chapter: %v", err)
+		}
 	}
+	if convertedChapter == nil {
+		return fmt.Errorf("failed to convert chapter")
+	}
+
 	convertedChapter.SetConverted()
 
 	// Write the converted chapter back to a CBZ file

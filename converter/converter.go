@@ -12,6 +12,9 @@ import (
 type Converter interface {
 	// Format of the converter
 	Format() (format constant.ConversionFormat)
+	// ConvertChapter converts a manga chapter to the specified format.
+	//
+	// Returns partial success where some pages are converted and some are not.
 	ConvertChapter(chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error)
 	PrepareConverter() error
 }

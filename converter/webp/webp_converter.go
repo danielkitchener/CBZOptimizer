@@ -2,8 +2,10 @@ package webp
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
+	converterrors "github.com/belphemur/CBZOptimizer/converter/errors"
 	"github.com/belphemur/CBZOptimizer/manga"
 	"github.com/oliamb/cutter"
 	"golang.org/x/exp/slices"
@@ -109,17 +111,22 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page, split)
 			if err != nil {
 				errChan <- err
+				// Partial error in this case, we want the page, but not converting it
+				if img != nil {
+					wgConvertedPages.Add(1)
+					pagesChan <- manga.NewContainer(page, img, format, false)
+				}
 				return
 			}
 
 			if !splitNeeded {
 				wgConvertedPages.Add(1)
-				pagesChan <- manga.NewContainer(page, img, format)
+				pagesChan <- manga.NewContainer(page, img, format, true)
 				return
 			}
 			images, err := converter.cropImage(img)
 			if err != nil {
-				errChan <- fmt.Errorf("error converting page %d of genTestChapter %s to webp: %v", page.Index, chapter.FilePath, err)
+				errChan <- err
 				return
 			}
 
@@ -127,7 +134,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 			for i, img := range images {
 				page := &manga.Page{Index: page.Index, IsSplitted: true, SplitPartIndex: uint16(i)}
 				wgConvertedPages.Add(1)
-				pagesChan <- manga.NewContainer(page, img, "N/A")
+				pagesChan <- manga.NewContainer(page, img, "N/A", true)
 			}
 		}(page)
 	}
@@ -142,8 +149,9 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 		errList = append(errList, err)
 	}
 
+	var aggregatedError error = nil
 	if len(errList) > 0 {
-		return nil, fmt.Errorf("encountered errors: %v", errList)
+		aggregatedError = errors.Join(errList...)
 	}
 
 	slices.SortFunc(pages, func(a, b *manga.Page) int {
@@ -156,7 +164,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 
 	runtime.GC()
 
-	return chapter, nil
+	return chapter, aggregatedError
 }
 
 func (converter *Converter) cropImage(img image.Image) ([]image.Image, error) {
@@ -203,13 +211,16 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested
 	height := bounds.Dy()
 
 	if height >= webpMaxHeight && !splitRequested {
-		return false, img, format, fmt.Errorf("page[%d] height %d exceeds maximum height %d of webp format", page.Index, height, webpMaxHeight)
+		return false, img, format, converterrors.NewPageIgnored(fmt.Sprintf("page %d is too tall to be converted to webp format", page.Index))
 	}
 	return height >= converter.maxHeight && splitRequested, img, format, nil
 }
 
 func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8) (*manga.PageContainer, error) {
 	if container.Format == "webp" {
+		return container, nil
+	}
+	if !container.IsToBeConverted {
 		return container, nil
 	}
 	converted, err := converter.convert(container.Image, uint(quality))

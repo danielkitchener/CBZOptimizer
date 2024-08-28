@@ -10,8 +10,10 @@ type PageContainer struct {
 	Image image.Image
 	// Format is a string representing the format of the image (e.g., "png", "jpeg", "webp").
 	Format string
+	// IsToBeConverted is a boolean flag indicating whether the image needs to be converted to another format.
+	IsToBeConverted bool
 }
 
-func NewContainer(Page *Page, img image.Image, format string) *PageContainer {
-	return &PageContainer{Page: Page, Image: img, Format: format}
+func NewContainer(Page *Page, img image.Image, format string, isToBeConverted bool) *PageContainer {
+	return &PageContainer{Page: Page, Image: img, Format: format, IsToBeConverted: isToBeConverted}
 }
