@@ -15,7 +15,7 @@ RUN mkdir -p "${CONFIG_FOLDER}" && adduser \
 
 COPY CBZOptimizer /usr/local/bin/CBZOptimizer
 
-RUN apk add --no-cache inotify-tools && chmod +x /usr/local/bin/CBZOptimizer
+RUN apk add --no-cache inotify-tools && chmod +x /usr/local/bin/CBZOptimizer && /usr/local/bin/CBZOptimizer completion bash > /etc/bash_completion.d/CBZOptimizer
 
 USER ${USER}
 ENTRYPOINT ["/usr/local/bin/CBZOptimizer"]
