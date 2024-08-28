@@ -3,16 +3,15 @@ LABEL authors="Belphemur"
 ENV USER=abc
 ENV CONFIG_FOLDER=/config
 ENV PUID=99
-ENV PGID=100
-RUN mkdir -p "${CONFIG_FOLDER}" && addgroup -g "${PGID}" "${USER}" && adduser \
+RUN mkdir -p "${CONFIG_FOLDER}" && adduser \
     --disabled-password \
     --gecos "" \
     --home "$(pwd)" \
-    --ingroup "${USER}" \
+    --ingroup "users" \
     --no-create-home \
     --uid "${PUID}" \
     "${USER}" && \
-    chown ${PUID}:${GUID} /config "${CONFIG_FOLDER}"
+    chown ${PUID}:${GUID} "${CONFIG_FOLDER}"
 
 COPY CBZOptimizer /usr/local/bin/CBZOptimizer
 
