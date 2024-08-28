@@ -24,8 +24,10 @@ func Optimize(chapterConverter converter.Converter, path string, quality uint8, 
 	}
 
 	// Convert the chapter
-	convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string) {
-		log.Printf("[%s]%s", path, msg)
+	convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string, current uint32, total uint32) {
+		if current%10 == 0 || current == total {
+			log.Printf("[%s] Converting: %d/%d", chapter.FilePath, current, total)
+		}
 	})
 	if err != nil {
 		return fmt.Errorf("failed to convert chapter: %v", err)

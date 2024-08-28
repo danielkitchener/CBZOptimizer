@@ -48,7 +48,7 @@ func (converter *Converter) PrepareConverter() error {
 	return nil
 }
 
-func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uint8, progress func(string)) (*packer2.Chapter, error) {
+func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uint8, progress func(message string, current uint32, total uint32)) (*packer2.Chapter, error) {
 	err := converter.PrepareConverter()
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 				}
 				pagesMutex.Lock()
 				pages = append(pages, convertedPage.Page)
-				progress(fmt.Sprintf("Converted %d/%d pages to %s format", len(pages), totalPages, converter.Format()))
+				progress(fmt.Sprintf("Converted %d/%d pages to %s format", len(pages), totalPages, converter.Format()), uint32(len(pages)), totalPages)
 				pagesMutex.Unlock()
 				<-guard
 			}(page)

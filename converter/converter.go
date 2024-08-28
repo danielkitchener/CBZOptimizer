@@ -12,7 +12,7 @@ import (
 type Converter interface {
 	// Format of the converter
 	Format() (format constant.ConversionFormat)
-	ConvertChapter(chapter *manga.Chapter, quality uint8, progress func(string)) (*manga.Chapter, error)
+	ConvertChapter(chapter *manga.Chapter, quality uint8, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error)
 	PrepareConverter() error
 }
 
