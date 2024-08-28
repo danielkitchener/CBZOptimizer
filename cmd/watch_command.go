@@ -116,7 +116,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 				case inotifywaitgo.CLOSE_WRITE, inotifywaitgo.MOVE:
 					err := utils.Optimize(&utils.OptimizeOptions{
 						ChapterConverter: chapterConverter,
-						Path:             path,
+						Path:             event.Filename,
 						Quality:          quality,
 						Override:         override,
 						Split:            split,
