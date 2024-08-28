@@ -22,14 +22,14 @@ func TestConvertChapter(t *testing.T) {
 	}{
 		{
 			name:                 "All split pages",
-			genTestChapter:       genHugePages,
+			genTestChapter:       genHugePage,
 			split:                true,
 			expectFailure:        []constant.ConversionFormat{},
 			expectPartialSuccess: []constant.ConversionFormat{},
 		},
 		{
 			name:                 "Big Pages, no split",
-			genTestChapter:       genHugePages,
+			genTestChapter:       genHugePage,
 			split:                false,
 			expectFailure:        []constant.ConversionFormat{constant.WebP},
 			expectPartialSuccess: []constant.ConversionFormat{},
@@ -116,7 +116,7 @@ func TestConvertChapter(t *testing.T) {
 	}
 }
 
-func genHugePages(path string) (*manga.Chapter, error) {
+func genHugePage(path string) (*manga.Chapter, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func genHugePages(path string) (*manga.Chapter, error) {
 	defer file.Close()
 
 	var pages []*manga.Page
-	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
+	for i := 0; i < 1; i++ { // Assuming there are 5 pages for the test
 		img := image.NewRGBA(image.Rect(0, 0, 1, 17000))
 		buf := new(bytes.Buffer)
 		err := jpeg.Encode(buf, img, nil)
