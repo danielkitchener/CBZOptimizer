@@ -204,8 +204,8 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page) (bool, image.I
 	bounds := img.Bounds()
 	height := bounds.Dy()
 
-	if height >= converter.maxHeight {
-		return false, img, format, fmt.Errorf("page[%d] height %d exceeds maximum height %d of webp format", page.Index, height, converter.maxHeight)
+	if height >= webpMaxHeight {
+		return false, img, format, fmt.Errorf("page[%d] height %d exceeds maximum height %d of webp format", page.Index, height, webpMaxHeight)
 	}
 	return height >= converter.maxHeight, img, format, nil
 }
