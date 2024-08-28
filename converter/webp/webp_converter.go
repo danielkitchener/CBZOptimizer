@@ -211,7 +211,7 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested
 	height := bounds.Dy()
 
 	if height >= webpMaxHeight && !splitRequested {
-		return false, img, format, converterrors.NewPageIgnored(fmt.Sprintf("page %d is too tall to be converted to webp format", page.Index))
+		return false, img, format, converterrors.NewPageIgnored(fmt.Sprintf("page %d is too tall [max: %dpx] to be converted to webp format", page.Index, webpMaxHeight))
 	}
 	return height >= converter.maxHeight && splitRequested, img, format, nil
 }
