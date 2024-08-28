@@ -29,6 +29,7 @@ func init() {
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	command.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	command.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
 	command.PersistentFlags().VarP(
 		formatFlag,
 		"format", "f",
@@ -56,6 +57,11 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	override, err := cmd.Flags().GetBool("override")
 	if err != nil {
 		return fmt.Errorf("invalid quality value")
+	}
+
+	split, err := cmd.Flags().GetBool("split")
+	if err != nil {
+		return fmt.Errorf("invalid split value")
 	}
 
 	parallelism, err := cmd.Flags().GetInt("parallelism")
@@ -86,7 +92,13 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 		go func() {
 			defer wg.Done()
 			for path := range fileChan {
-				err := utils.Optimize(chapterConverter, path, quality, override)
+				err := utils.Optimize(&utils.OptimizeOptions{
+					ChapterConverter: chapterConverter,
+					Path:             path,
+					Quality:          quality,
+					Override:         override,
+					Split:            split,
+				})
 				if err != nil {
 					errorChan <- fmt.Errorf("error processing file %s: %w", path, err)
 				}

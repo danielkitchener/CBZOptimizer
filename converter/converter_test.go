@@ -14,18 +14,22 @@ func TestConvertChapter(t *testing.T) {
 	testCases := []struct {
 		name           string
 		genTestChapter func(path string) (*manga.Chapter, error)
+		split          bool
 	}{
 		{
 			name:           "All split pages",
 			genTestChapter: genBigPages,
+			split:          true,
 		},
 		{
 			name:           "No split pages",
 			genTestChapter: genSmallPages,
+			split:          false,
 		},
 		{
 			name:           "Mix of split and no split pages",
 			genTestChapter: genMixSmallBig,
+			split:          true,
 		},
 	}
 	// Load test genTestChapter from testdata
@@ -50,11 +54,11 @@ func TestConvertChapter(t *testing.T) {
 
 					quality := uint8(80)
 
-					progress := func(msg string) {
+					progress := func(msg string, current uint32, total uint32) {
 						t.Log(msg)
 					}
 
-					convertedChapter, err := converter.ConvertChapter(chapter, quality, progress)
+					convertedChapter, err := converter.ConvertChapter(chapter, quality, false, progress)
 					if err != nil {
 						t.Fatalf("failed to convert genTestChapter: %v", err)
 					}

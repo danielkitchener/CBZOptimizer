@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
-	packer2 "github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/manga"
 	"github.com/oliamb/cutter"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
@@ -48,7 +48,7 @@ func (converter *Converter) PrepareConverter() error {
 	return nil
 }
 
-func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uint8, progress func(message string, current uint32, total uint32)) (*packer2.Chapter, error) {
+func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	err := converter.PrepareConverter()
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 	var wgConvertedPages sync.WaitGroup
 	maxGoroutines := runtime.NumCPU()
 
-	pagesChan := make(chan *packer2.PageContainer, maxGoroutines)
+	pagesChan := make(chan *manga.PageContainer, maxGoroutines)
 	errChan := make(chan error, maxGoroutines)
 
 	var wgPages sync.WaitGroup
@@ -65,13 +65,13 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 
 	guard := make(chan struct{}, maxGoroutines)
 	pagesMutex := sync.Mutex{}
-	var pages []*packer2.Page
+	var pages []*manga.Page
 	var totalPages = uint32(len(chapter.Pages))
 
 	go func() {
 		for page := range pagesChan {
 			guard <- struct{}{} // would block if guard channel is already filled
-			go func(pageToConvert *packer2.PageContainer) {
+			go func(pageToConvert *manga.PageContainer) {
 				defer wgConvertedPages.Done()
 				convertedPage, err := converter.convertPage(pageToConvert, quality)
 				if err != nil {
@@ -101,10 +101,12 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 	}()
 
 	for _, page := range chapter.Pages {
-		go func(page *packer2.Page) {
+		go func(page *manga.Page) {
 			defer wgPages.Done()
 
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page)
+			// Respect choice to split or not
+			splitNeeded = split && splitNeeded
 			if err != nil {
 				errChan <- fmt.Errorf("error checking if page %d of genTestChapter %s needs split: %v", page.Index, chapter.FilePath, err)
 				return
@@ -112,7 +114,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 
 			if !splitNeeded {
 				wgConvertedPages.Add(1)
-				pagesChan <- packer2.NewContainer(page, img, format)
+				pagesChan <- manga.NewContainer(page, img, format)
 				return
 			}
 			images, err := converter.cropImage(img)
@@ -123,9 +125,9 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 
 			atomic.AddUint32(&totalPages, uint32(len(images)-1))
 			for i, img := range images {
-				page := &packer2.Page{Index: page.Index, IsSplitted: true, SplitPartIndex: uint16(i)}
+				page := &manga.Page{Index: page.Index, IsSplitted: true, SplitPartIndex: uint16(i)}
 				wgConvertedPages.Add(1)
-				pagesChan <- packer2.NewContainer(page, img, "N/A")
+				pagesChan <- manga.NewContainer(page, img, "N/A")
 			}
 		}(page)
 	}
@@ -144,7 +146,7 @@ func (converter *Converter) ConvertChapter(chapter *packer2.Chapter, quality uin
 		return nil, fmt.Errorf("encountered errors: %v", errList)
 	}
 
-	slices.SortFunc(pages, func(a, b *packer2.Page) int {
+	slices.SortFunc(pages, func(a, b *manga.Page) int {
 		if a.Index == b.Index {
 			return int(b.SplitPartIndex - a.SplitPartIndex)
 		}
@@ -190,7 +192,7 @@ func (converter *Converter) cropImage(img image.Image) ([]image.Image, error) {
 	return parts, nil
 }
 
-func (converter *Converter) checkPageNeedsSplit(page *packer2.Page) (bool, image.Image, string, error) {
+func (converter *Converter) checkPageNeedsSplit(page *manga.Page) (bool, image.Image, string, error) {
 	reader := io.Reader(bytes.NewBuffer(page.Contents.Bytes()))
 	img, format, err := image.Decode(reader)
 	if err != nil {
@@ -203,7 +205,7 @@ func (converter *Converter) checkPageNeedsSplit(page *packer2.Page) (bool, image
 	return height >= converter.maxHeight, img, format, nil
 }
 
-func (converter *Converter) convertPage(container *packer2.PageContainer, quality uint8) (*packer2.PageContainer, error) {
+func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8) (*manga.PageContainer, error) {
 	if container.Format == "webp" {
 		return container, nil
 	}

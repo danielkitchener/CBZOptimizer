@@ -8,23 +8,31 @@ import (
 	"strings"
 )
 
+type OptimizeOptions struct {
+	ChapterConverter converter.Converter
+	Path             string
+	Quality          uint8
+	Override         bool
+	Split            bool
+}
+
 // Optimize optimizes a CBZ file using the specified converter.
-func Optimize(chapterConverter converter.Converter, path string, quality uint8, override bool) error {
-	log.Printf("Processing file: %s\n", path)
+func Optimize(options *OptimizeOptions) error {
+	log.Printf("Processing file: %s\n", options.Path)
 
 	// Load the chapter
-	chapter, err := cbz.LoadChapter(path)
+	chapter, err := cbz.LoadChapter(options.Path)
 	if err != nil {
 		return fmt.Errorf("failed to load chapter: %v", err)
 	}
 
 	if chapter.IsConverted {
-		log.Printf("Chapter already converted: %s", path)
+		log.Printf("Chapter already converted: %s", options.Path)
 		return nil
 	}
 
 	// Convert the chapter
-	convertedChapter, err := chapterConverter.ConvertChapter(chapter, quality, func(msg string, current uint32, total uint32) {
+	convertedChapter, err := options.ChapterConverter.ConvertChapter(chapter, options.Quality, options.Split, func(msg string, current uint32, total uint32) {
 		if current%10 == 0 || current == total {
 			log.Printf("[%s] Converting: %d/%d", chapter.FilePath, current, total)
 		}
@@ -35,9 +43,9 @@ func Optimize(chapterConverter converter.Converter, path string, quality uint8, 
 	convertedChapter.SetConverted()
 
 	// Write the converted chapter back to a CBZ file
-	outputPath := path
-	if !override {
-		outputPath = strings.TrimSuffix(path, ".cbz") + "_converted.cbz"
+	outputPath := options.Path
+	if !options.Override {
+		outputPath = strings.TrimSuffix(options.Path, ".cbz") + "_converted.cbz"
 	}
 	err = cbz.WriteChapterToCBZ(convertedChapter, outputPath)
 	if err != nil {
