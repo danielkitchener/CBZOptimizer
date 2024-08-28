@@ -35,6 +35,9 @@ func init() {
 	command.Flags().BoolP("override", "o", true, "Override the original CBZ files")
 	_ = viper.BindPFlag("override", command.Flags().Lookup("override"))
 
+	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
+	_ = viper.BindPFlag("split", command.Flags().Lookup("split"))
+
 	command.PersistentFlags().VarP(
 		formatFlag,
 		"format", "f",
@@ -60,6 +63,8 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	}
 
 	override := viper.GetBool("override")
+
+	split := viper.GetBool("split")
 
 	converterType := constant.FindConversionFormat(viper.GetString("format"))
 	chapterConverter, err := converter.Get(converterType)
@@ -109,7 +114,13 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 			for _, e := range event.Events {
 				switch e {
 				case inotifywaitgo.CLOSE_WRITE, inotifywaitgo.MOVE:
-					err := utils.Optimize(chapterConverter, event.Filename, quality, override)
+					err := utils.Optimize(&utils.OptimizeOptions{
+						ChapterConverter: chapterConverter,
+						Path:             path,
+						Quality:          quality,
+						Override:         override,
+						Split:            split,
+					})
 					if err != nil {
 						errors <- fmt.Errorf("error processing file %s: %w", event.Filename, err)
 					}
