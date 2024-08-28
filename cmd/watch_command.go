@@ -55,7 +55,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	}
 
 	quality := uint8(viper.GetUint16("quality"))
-	if quality <= 0 {
+	if quality <= 0 || quality > 100 {
 		return fmt.Errorf("invalid quality value")
 	}
 

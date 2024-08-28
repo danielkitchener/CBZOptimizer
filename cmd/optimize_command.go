@@ -49,7 +49,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	quality, err := cmd.Flags().GetUint8("quality")
-	if err != nil {
+	if err != nil || quality <= 0 || quality > 100 {
 		return fmt.Errorf("invalid quality value")
 	}
 
