@@ -106,9 +106,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 		go func(page *manga.Page) {
 			defer wgPages.Done()
 
-			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page)
-			// Respect choice to split or not
-			splitNeeded = split && splitNeeded
+			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page, split)
 			if err != nil {
 				errChan <- fmt.Errorf("error checking if page %d of genTestChapter %s needs split: %v", page.Index, chapter.FilePath, err)
 				return
@@ -194,7 +192,7 @@ func (converter *Converter) cropImage(img image.Image) ([]image.Image, error) {
 	return parts, nil
 }
 
-func (converter *Converter) checkPageNeedsSplit(page *manga.Page) (bool, image.Image, string, error) {
+func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested bool) (bool, image.Image, string, error) {
 	reader := io.Reader(bytes.NewBuffer(page.Contents.Bytes()))
 	img, format, err := image.Decode(reader)
 	if err != nil {
@@ -204,10 +202,10 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page) (bool, image.I
 	bounds := img.Bounds()
 	height := bounds.Dy()
 
-	if height >= webpMaxHeight {
+	if height >= webpMaxHeight && !splitRequested {
 		return false, img, format, fmt.Errorf("page[%d] height %d exceeds maximum height %d of webp format", page.Index, height, webpMaxHeight)
 	}
-	return height >= converter.maxHeight, img, format, nil
+	return height >= converter.maxHeight && splitRequested, img, format, nil
 }
 
 func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8) (*manga.PageContainer, error) {
