@@ -31,7 +31,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 				IsConverted:   true,
 				ConvertedTime: time.Now(),
 			},
-			expectedFiles: []string{"page_0000.jpg", "ComicInfo.xml", "Converted.txt"},
+			expectedFiles: []string{"0000.jpg", "ComicInfo.xml", "Converted.txt"},
 		},
 		//test case where there is only one page and no
 		{
@@ -45,7 +45,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 					},
 				},
 			},
-			expectedFiles: []string{"page_0000.jpg"},
+			expectedFiles: []string{"0000.jpg"},
 		},
 		{
 			name: "Multiple pages with ComicInfo",
@@ -64,7 +64,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 				},
 				ComicInfoXml: "<Series>Boundless Necromancer</Series>",
 			},
-			expectedFiles: []string{"page_0000.jpg", "page_0001.jpg", "ComicInfo.xml"},
+			expectedFiles: []string{"0000.jpg", "0001.jpg", "ComicInfo.xml"},
 		},
 		{
 			name: "Split page",
@@ -79,7 +79,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 					},
 				},
 			},
-			expectedFiles: []string{"page_0000-01.jpg"},
+			expectedFiles: []string{"0000-01.jpg"},
 		},
 	}
 

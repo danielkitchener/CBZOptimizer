@@ -17,15 +17,14 @@ import (
 // MockConverter is a mock implementation of the Converter interface
 type MockConverter struct{}
 
-func (m *MockConverter) Format() constant.ConversionFormat {
-	return constant.WebP
-}
-
-func (m *MockConverter) ConvertChapter(chapter *manga.Chapter, quality uint8, progress func(string)) (*manga.Chapter, error) {
-	// Simulate conversion by setting the IsConverted flag
+func (m *MockConverter) ConvertChapter(chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	chapter.IsConverted = true
 	chapter.ConvertedTime = time.Now()
 	return chapter, nil
+}
+
+func (m *MockConverter) Format() constant.ConversionFormat {
+	return constant.WebP
 }
 
 func (m *MockConverter) PrepareConverter() error {
@@ -79,6 +78,7 @@ func TestConvertCbzCommand(t *testing.T) {
 	cmd.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	cmd.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	cmd.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	cmd.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
 
 	// Execute the command
 	err = ConvertCbzCommand(cmd, []string{tempDir})
