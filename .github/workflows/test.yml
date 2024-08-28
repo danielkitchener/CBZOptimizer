@@ -34,7 +34,7 @@ jobs:
       - name: Analyse test results
         run: go-junit-report < test-results.txt > report.xml
       - name: Upload test result artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: test-results.txt
