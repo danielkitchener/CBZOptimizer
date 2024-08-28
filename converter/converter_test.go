@@ -125,7 +125,7 @@ func genHugePages(path string) (*manga.Chapter, error) {
 
 	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
-		img := image.NewRGBA(image.Rect(0, 0, 300, 17000))
+		img := image.NewRGBA(image.Rect(0, 0, 1, 17000))
 		buf := new(bytes.Buffer)
 		err := jpeg.Encode(buf, img, nil)
 		if err != nil {
@@ -212,7 +212,7 @@ func genMixSmallHuge(path string) (*manga.Chapter, error) {
 
 	var pages []*manga.Page
 	for i := 0; i < 10; i++ { // Assuming there are 5 pages for the test
-		img := image.NewRGBA(image.Rect(0, 0, 300, 2000*(i+1)))
+		img := image.NewRGBA(image.Rect(0, 0, 1, 2000*(i+1)))
 		buf := new(bytes.Buffer)
 		err := jpeg.Encode(buf, img, nil)
 		if err != nil {
