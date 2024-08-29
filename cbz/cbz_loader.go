@@ -23,6 +23,17 @@ func LoadChapter(filePath string) (*manga.Chapter, error) {
 	chapter := &manga.Chapter{
 		FilePath: filePath,
 	}
+	// Check for comment
+	if r.Comment != "" {
+		scanner := bufio.NewScanner(strings.NewReader(r.Comment))
+		if scanner.Scan() {
+			convertedTime := scanner.Text()
+			chapter.ConvertedTime, err = dateparse.ParseAny(convertedTime)
+			if err == nil {
+				chapter.IsConverted = true
+			}
+		}
+	}
 
 	for _, f := range r.File {
 		if f.FileInfo().IsDir() {
@@ -45,7 +56,7 @@ func LoadChapter(filePath string) (*manga.Chapter, error) {
 				return nil, fmt.Errorf("failed to read ComicInfo.xml content: %w", err)
 			}
 			chapter.ComicInfoXml = string(xmlContent)
-		} else if ext == ".txt" && strings.ToLower(filepath.Base(f.Name)) == "converted.txt" {
+		} else if !chapter.IsConverted && ext == ".txt" && strings.ToLower(filepath.Base(f.Name)) == "converted.txt" {
 			textContent, err := io.ReadAll(rc)
 			if err != nil {
 				rc.Close()

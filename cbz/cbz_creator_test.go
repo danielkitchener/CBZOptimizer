@@ -3,6 +3,7 @@ package cbz
 import (
 	"archive/zip"
 	"bytes"
+	"fmt"
 	"github.com/belphemur/CBZOptimizer/manga"
 	"os"
 	"testing"
@@ -10,11 +11,14 @@ import (
 )
 
 func TestWriteChapterToCBZ(t *testing.T) {
+	currentTime := time.Now()
+
 	// Define test cases
 	testCases := []struct {
-		name          string
-		chapter       *manga.Chapter
-		expectedFiles []string
+		name            string
+		chapter         *manga.Chapter
+		expectedFiles   []string
+		expectedComment string
 	}{
 		//test case where there is only one page and ComicInfo and the chapter is converted
 		{
@@ -29,9 +33,10 @@ func TestWriteChapterToCBZ(t *testing.T) {
 				},
 				ComicInfoXml:  "<Series>Boundless Necromancer</Series>",
 				IsConverted:   true,
-				ConvertedTime: time.Now(),
+				ConvertedTime: currentTime,
 			},
-			expectedFiles: []string{"0000.jpg", "ComicInfo.xml", "Converted.txt"},
+			expectedFiles:   []string{"0000.jpg", "ComicInfo.xml"},
+			expectedComment: fmt.Sprintf("%s\nThis chapter has been converted by CBZOptimizer.", currentTime),
 		},
 		//test case where there is only one page and no
 		{
@@ -123,6 +128,10 @@ func TestWriteChapterToCBZ(t *testing.T) {
 				if !found {
 					t.Errorf("Expected file %s not found in archive", expectedFile)
 				}
+			}
+
+			if tc.expectedComment != "" && r.Comment != tc.expectedComment {
+				t.Errorf("Expected comment %s, but found %s", tc.expectedComment, r.Comment)
 			}
 
 			// Check if there are no unexpected files

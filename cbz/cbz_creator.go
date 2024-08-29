@@ -18,7 +18,6 @@ func WriteChapterToCBZ(chapter *manga.Chapter, outputFilePath string) error {
 
 	// Create a new ZIP writer
 	zipWriter := zip.NewWriter(zipFile)
-	err = zipWriter.SetComment("Created by CBZOptimizer")
 	if err != nil {
 		return err
 	}
@@ -71,18 +70,11 @@ func WriteChapterToCBZ(chapter *manga.Chapter, outputFilePath string) error {
 	}
 
 	if chapter.IsConverted {
-		convertedWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
-			Name:     "Converted.txt",
-			Method:   zip.Deflate,
-			Modified: time.Now(),
-		})
-		if err != nil {
-			return fmt.Errorf("failed to create Converted.txt in .cbz: %w", err)
-		}
 
-		_, err = convertedWriter.Write([]byte(fmt.Sprintf("%s\nThis chapter has been converted by CBZOptimizer.", chapter.ConvertedTime)))
+		convertedString := fmt.Sprintf("%s\nThis chapter has been converted by CBZOptimizer.", chapter.ConvertedTime)
+		err = zipWriter.SetComment(convertedString)
 		if err != nil {
-			return fmt.Errorf("failed to write Converted.txt contents: %w", err)
+			return fmt.Errorf("failed to write comment: %w", err)
 		}
 	}
 
