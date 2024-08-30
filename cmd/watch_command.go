@@ -76,7 +76,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to prepare converter: %v", err)
 	}
-	log.Printf("Watching [%s] with [override: %t, quality: %d, format: %s]", path, override, quality, converterType.String())
+	log.Printf("Watching [%s] with [override: %t, quality: %d, format: %s, split: %t]", path, override, quality, converterType.String(), split)
 
 	events := make(chan inotifywaitgo.FileEvent)
 	errors := make(chan error)
