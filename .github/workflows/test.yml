@@ -32,8 +32,10 @@ jobs:
           set -o pipefail
           go test -v 2>&1 ./... -coverprofile=coverage.txt | tee test-results.txt
       - name: Analyse test results
+        if: ${{ !cancelled() }}
         run: go-junit-report < test-results.txt > junit.xml
       - name: Upload test result artifact
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: test-results
