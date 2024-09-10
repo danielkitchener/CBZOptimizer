@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/utils/errs"
 	"os"
 	"testing"
 	"time"
@@ -95,7 +96,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to create temporary file: %v", err)
 			}
-			defer os.Remove(tempFile.Name())
+			defer errs.CaptureGeneric(&err, os.Remove, tempFile.Name(), "failed to remove temporary file")
 
 			// Write the chapter to the .cbz file
 			err = WriteChapterToCBZ(tc.chapter, tempFile.Name())
@@ -108,7 +109,7 @@ func TestWriteChapterToCBZ(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to open CBZ file: %v", err)
 			}
-			defer r.Close()
+			defer errs.Capture(&err, r.Close, "failed to close CBZ file")
 
 			// Collect the names of the files in the archive
 			var filesInArchive []string

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/utils/errs"
 	"golang.org/x/exp/slices"
 	"image"
 	"image/jpeg"
@@ -62,7 +63,7 @@ func TestConvertChapter(t *testing.T) {
 		t.Fatalf("failed to create temporary file: %v", err)
 
 	}
-	defer os.Remove(temp.Name())
+	defer errs.CaptureGeneric(&err, os.Remove, temp.Name(), "failed to remove temporary file")
 	for _, converter := range Available() {
 		converter, err := Get(converter)
 		if err != nil {
@@ -121,7 +122,7 @@ func genHugePage(path string) (*manga.Chapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer errs.Capture(&err, file.Close, "failed to close file")
 
 	var pages []*manga.Page
 	for i := 0; i < 1; i++ { // Assuming there are 5 pages for the test
@@ -150,7 +151,7 @@ func genSmallPages(path string) (*manga.Chapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer errs.Capture(&err, file.Close, "failed to close file")
 
 	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
@@ -179,7 +180,7 @@ func genMixSmallBig(path string) (*manga.Chapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer errs.Capture(&err, file.Close, "failed to close file")
 
 	var pages []*manga.Page
 	for i := 0; i < 5; i++ { // Assuming there are 5 pages for the test
@@ -208,7 +209,7 @@ func genMixSmallHuge(path string) (*manga.Chapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer errs.Capture(&err, file.Close, "failed to close file")
 
 	var pages []*manga.Page
 	for i := 0; i < 10; i++ { // Assuming there are 5 pages for the test

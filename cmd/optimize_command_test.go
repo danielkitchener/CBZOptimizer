@@ -5,6 +5,7 @@ import (
 	"github.com/belphemur/CBZOptimizer/converter"
 	"github.com/belphemur/CBZOptimizer/converter/constant"
 	"github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/utils/errs"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -37,7 +38,7 @@ func TestConvertCbzCommand(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir) // Clean up the temp directory when done
+	defer errs.CaptureGeneric(&err, os.RemoveAll, tempDir, "failed to remove temporary directory")
 
 	// Locate the testdata directory
 	testdataDir := filepath.Join("../testdata")
