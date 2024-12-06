@@ -1,5 +1,6 @@
 FROM alpine:latest
 LABEL authors="Belphemur"
+ARG APP_PATH=/usr/local/bin/CBZOptimizer
 ENV USER=abc
 ENV CONFIG_FOLDER=/config
 ENV PUID=99
@@ -13,9 +14,9 @@ RUN adduser \
     "${USER}" && \
     chown ${PUID}:${GUID} "${CONFIG_FOLDER}"
 
-COPY CBZOptimizer /usr/local/bin/CBZOptimizer
+COPY CBZOptimizer ${APP_PATH}
 
-RUN apk add --no-cache inotify-tools bash-completion libwebp && chmod +x /usr/local/bin/CBZOptimizer && /usr/local/bin/CBZOptimizer completion bash > /etc/bash_completion.d/CBZOptimizer
+RUN apk add --no-cache inotify-tools bash-completion libwebp && chmod +x ${APP_PATH} && ${APP_PATH} completion bash > /etc/bash_completion.d/CBZOptimizer
 
 VOLUME ${CONFIG_FOLDER}
 USER ${USER}
