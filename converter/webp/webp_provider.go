@@ -1,22 +1,19 @@
 package webp
 
 import (
-	"github.com/belphemur/go-webpbin/v2"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
 	"image"
 	"io"
 )
 
-const libwebpVersion = "1.4.0"
-
 func PrepareEncoder() error {
-	webpbin.SetLibVersion(libwebpVersion)
-	container := webpbin.NewCWebP()
-	return container.BinWrapper.Run()
+	return nil
 }
 func Encode(w io.Writer, m image.Image, quality uint) error {
-	return webpbin.NewCWebP().
-		Quality(quality).
-		InputImage(m).
-		Output(w).
-		Run()
+	options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, float32(quality))
+	if err != nil {
+		return err
+	}
+	return webp.Encode(w, m, options)
 }

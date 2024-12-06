@@ -15,7 +15,7 @@ RUN adduser \
 
 COPY CBZOptimizer /usr/local/bin/CBZOptimizer
 
-RUN apk add --no-cache inotify-tools bash-completion  && chmod +x /usr/local/bin/CBZOptimizer && /usr/local/bin/CBZOptimizer completion bash > /etc/bash_completion.d/CBZOptimizer
+RUN apk add --no-cache inotify-tools bash-completion libwebp && chmod +x /usr/local/bin/CBZOptimizer && /usr/local/bin/CBZOptimizer completion bash > /etc/bash_completion.d/CBZOptimizer
 
 VOLUME ${CONFIG_FOLDER}
 USER ${USER}

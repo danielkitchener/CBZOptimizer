@@ -1,3 +1,4 @@
+
 # CBZOptimizer
 
 CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) files by converting images to a specified format and quality. This tool is useful for reducing the size of comic book archives while maintaining acceptable image quality.
@@ -8,14 +9,15 @@ CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) files 
 - Adjust the quality of the converted images.
 - Process multiple chapters in parallel.
 - Option to override the original CBZ files.
+- Watch a folder for new CBZ files and optimize them automatically.
 
 ## Installation
 
 1. Clone the repository:
-   ```sh
-   git clone https://github.com/belphemur/CBZOptimizer.git
-   cd CBZOptimizer
-   ```
+```sh
+git clone https://github.com/belphemur/CBZOptimizer.git
+cd CBZOptimizer
+```
 
 2. Install dependencies:
    ```sh
@@ -26,10 +28,22 @@ CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) files 
 
 ### Command Line Interface
 
-The tool provides a CLI command to optimize CBZ files. Below is an example of how to use it:
+The tool provides CLI commands to optimize and watch CBZ files. Below are examples of how to use them:
+
+#### Optimize Command
+
+Optimize all CBZ files in a folder recursively:
 
 ```sh
-go run main.go optimize --quality 85 --parallelism 2 --override /path/to/cbz/files
+go run main.go optimize [folder] --quality 85 --parallelism 2 --override --format webp --split
+```
+
+#### Watch Command
+
+Watch a folder for new CBZ files and optimize them automatically:
+
+```sh
+go run main.go watch [folder] --quality 85 --override --format webp --split
 ```
 
 ### Flags
@@ -37,6 +51,8 @@ go run main.go optimize --quality 85 --parallelism 2 --override /path/to/cbz/fil
 - `--quality`, `-q`: Quality for conversion (0-100). Default is 85.
 - `--parallelism`, `-n`: Number of chapters to convert in parallel. Default is 2.
 - `--override`, `-o`: Override the original CBZ files. Default is false.
+- `--split`, `-s`: Split long pages into smaller chunks. Default is false.
+- `--format`, `-f`: Format to convert the images to (e.g., webp). Default is webp.
 
 ## Testing
 
@@ -45,6 +61,12 @@ To run the tests, use the following command:
 ```sh
 go test ./... -v
 ```
+
+## Requirement
+Needs to have libwep installed on the machine if you're not using the docker image
+
+## Docker
+`ghcr.io/belphemur/cbzoptimizer:latest`
 
 ## GitHub Actions
 
