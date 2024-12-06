@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/converter"
-	"github.com/belphemur/CBZOptimizer/converter/constant"
-	"github.com/belphemur/CBZOptimizer/utils"
+	"github.com/belphemur/CBZOptimizer/v2/converter"
+	"github.com/belphemur/CBZOptimizer/v2/converter/constant"
+	"github.com/belphemur/CBZOptimizer/v2/utils"
 	"github.com/pablodz/inotifywaitgo/inotifywaitgo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

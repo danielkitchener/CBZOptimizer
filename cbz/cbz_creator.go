@@ -3,8 +3,8 @@ package cbz
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/manga"
-	"github.com/belphemur/CBZOptimizer/utils/errs"
+	"github.com/belphemur/CBZOptimizer/v2/manga"
+	"github.com/belphemur/CBZOptimizer/v2/utils/errs"
 	"os"
 	"time"
 )

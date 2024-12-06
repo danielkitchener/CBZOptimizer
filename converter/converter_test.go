@@ -2,9 +2,9 @@ package converter
 
 import (
 	"bytes"
-	"github.com/belphemur/CBZOptimizer/converter/constant"
-	"github.com/belphemur/CBZOptimizer/manga"
-	"github.com/belphemur/CBZOptimizer/utils/errs"
+	"github.com/belphemur/CBZOptimizer/v2/converter/constant"
+	"github.com/belphemur/CBZOptimizer/v2/manga"
+	"github.com/belphemur/CBZOptimizer/v2/utils/errs"
 	"golang.org/x/exp/slices"
 	"image"
 	"image/jpeg"

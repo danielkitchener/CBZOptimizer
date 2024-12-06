@@ -2,9 +2,9 @@ package converter
 
 import (
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/converter/constant"
-	"github.com/belphemur/CBZOptimizer/converter/webp"
-	"github.com/belphemur/CBZOptimizer/manga"
+	"github.com/belphemur/CBZOptimizer/v2/converter/constant"
+	"github.com/belphemur/CBZOptimizer/v2/converter/webp"
+	"github.com/belphemur/CBZOptimizer/v2/manga"
 	"github.com/samber/lo"
 	"strings"
 )
