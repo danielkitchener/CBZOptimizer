@@ -29,7 +29,6 @@ builds:
       - linux
     goarch:
       - amd64
-      - arm64
     # ensures mod timestamp to be the commit timestamp
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
