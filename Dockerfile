@@ -17,9 +17,8 @@ RUN adduser \
 COPY CBZOptimizer ${APP_PATH}
 
 RUN apk add --no-cache inotify-tools bash-completion libwebp &&  \
-    chmod +x ${APP_PATH} && \
-    ${APP_PATH} completion bash > /etc/bash_completion.d/CBZOptimizer
+    chmod +x ${APP_PATH}
 
 VOLUME ${CONFIG_FOLDER}
 USER ${USER}
-ENTRYPOINT ["${APP_DATA}"]
+ENTRYPOINT ["/usr/local/bin/CBZOptimizer"]
