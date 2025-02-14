@@ -27,8 +27,14 @@ builds:
     main: cmd/cbzoptimizer/main.go
     goos:
       - linux
+      - darwin
+      - windows
     goarch:
       - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
     # ensures mod timestamp to be the commit timestamp
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
@@ -37,7 +43,7 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
     env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
 # config the checksum filename
 # https://goreleaser.com/customization/checksum
 checksum:
@@ -60,11 +66,25 @@ sboms:
 # https://goreleaser.com/customization/docker
 dockers:
   - image_templates:
-      - "ghcr.io/belphemur/cbzoptimizer:latest"
-      - "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}"
-    dockerfile: Dockerfile
+      - "ghcr.io/belphemur/cbzoptimizer:latest-amd64"
+      - "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}-amd64"
+    use: buildx
     build_flag_templates:
       - "--pull"
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+  - image_templates:
+      - "ghcr.io/belphemur/cbzoptimizer:latest-arm64"
+      - "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}-arm64"
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.name={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -98,3 +118,12 @@ docker_signs:
       - "sign"
       - "${artifact}"
       - "--yes" # needed on cosign 2.0.0+
+docker_manifests:
+  - name_template: "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}-amd64"
+      - "ghcr.io/belphemur/cbzoptimizer:{{ .Version }}-arm64"
+  - name_template: "ghcr.io/belphemur/cbzoptimizer:latest"
+    image_templates:
+      - "ghcr.io/belphemur/cbzoptimizer:latest-amd64"
+      - "ghcr.io/belphemur/cbzoptimizer:latest-arm64"
