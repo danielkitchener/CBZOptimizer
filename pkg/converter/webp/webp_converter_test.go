@@ -4,13 +4,10 @@ import (
 	"bytes"
 	"image"
 	"image/color"
-	"image/jpeg"
 	"image/png"
 	"sync"
 	"testing"
-
-	_ "image/jpeg"
-
+	"image/jpeg"
 	_ "golang.org/x/image/webp"
 
 	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
