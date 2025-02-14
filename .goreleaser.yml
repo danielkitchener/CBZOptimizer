@@ -24,7 +24,7 @@ changelog:
       order: 2
 builds:
   - id: cbzoptimizer
-    main: main.go
+    main: cmd/cbzoptimizer/main.go
     goos:
       - linux
     goarch:

@@ -1,10 +1,10 @@
-package cmd
+package commands
 
 import (
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/v2/converter"
-	"github.com/belphemur/CBZOptimizer/v2/converter/constant"
-	"github.com/belphemur/CBZOptimizer/v2/utils"
+	utils2 "github.com/belphemur/CBZOptimizer/v2/internal/utils"
+	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
+	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/pablodz/inotifywaitgo/inotifywaitgo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -53,7 +53,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("path is required")
 	}
 
-	if !utils.IsValidFolder(path) {
+	if !utils2.IsValidFolder(path) {
 		return fmt.Errorf("the path needs to be a folder")
 	}
 
@@ -114,7 +114,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 			for _, e := range event.Events {
 				switch e {
 				case inotifywaitgo.CLOSE_WRITE, inotifywaitgo.MOVE:
-					err := utils.Optimize(&utils.OptimizeOptions{
+					err := utils2.Optimize(&utils2.OptimizeOptions{
 						ChapterConverter: chapterConverter,
 						Path:             event.Filename,
 						Quality:          quality,

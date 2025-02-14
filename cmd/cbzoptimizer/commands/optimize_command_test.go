@@ -1,11 +1,11 @@
-package cmd
+package commands
 
 import (
-	"github.com/belphemur/CBZOptimizer/v2/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/converter"
-	"github.com/belphemur/CBZOptimizer/v2/converter/constant"
-	"github.com/belphemur/CBZOptimizer/v2/manga"
-	"github.com/belphemur/CBZOptimizer/v2/utils/errs"
+	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
+	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
+	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
+	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/spf13/cobra"
 	"log"
 	"os"

@@ -3,9 +3,9 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/v2/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/converter"
-	errors2 "github.com/belphemur/CBZOptimizer/v2/converter/errors"
+	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
+	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
+	errors2 "github.com/belphemur/CBZOptimizer/v2/pkg/converter/errors"
 	"log"
 	"strings"
 )
