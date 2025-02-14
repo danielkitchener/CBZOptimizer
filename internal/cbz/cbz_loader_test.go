@@ -17,14 +17,14 @@ func TestLoadChapter(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:               "Original Chapter",
-			filePath:           "../testdata/Chapter 1.cbz",
+			filePath:           "../../testdata/Chapter 1.cbz",
 			expectedPages:      16,
 			expectedSeries:     "<Series>Boundless Necromancer</Series>",
 			expectedConversion: false,
 		},
 		{
 			name:               "Converted Chapter",
-			filePath:           "../testdata/Chapter 10_converted.cbz",
+			filePath:           "../../testdata/Chapter 10_converted.cbz",
 			expectedPages:      107,
 			expectedSeries:     "<Series>Boundless Necromancer</Series>",
 			expectedConversion: true,
