@@ -41,7 +41,7 @@ func TestConvertCbzCommand(t *testing.T) {
 	defer errs.CaptureGeneric(&err, os.RemoveAll, tempDir, "failed to remove temporary directory")
 
 	// Locate the testdata directory
-	testdataDir := filepath.Join("../testdata")
+	testdataDir := filepath.Join("../../../testdata")
 	if _, err := os.Stat(testdataDir); os.IsNotExist(err) {
 		t.Fatalf("testdata directory not found")
 	}

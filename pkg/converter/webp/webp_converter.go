@@ -4,19 +4,19 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	"image/png"
+	"runtime"
+	"sync"
+	"sync/atomic"
+
 	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
 	converterrors "github.com/belphemur/CBZOptimizer/v2/pkg/converter/errors"
 	"github.com/oliamb/cutter"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
-	"image"
-	_ "image/jpeg"
-	"image/png"
-	"io"
-	"runtime"
-	"sync"
-	"sync/atomic"
 )
 
 const webpMaxHeight = 16383
@@ -63,6 +63,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 
 	pagesChan := make(chan *manga.PageContainer, maxGoroutines)
 	errChan := make(chan error, maxGoroutines)
+	doneChan := make(chan struct{})
 
 	var wgPages sync.WaitGroup
 	wgPages.Add(len(chapter.Pages))
@@ -72,23 +73,27 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 	var pages []*manga.Page
 	var totalPages = uint32(len(chapter.Pages))
 
+	// Start the worker pool
 	go func() {
 		for page := range pagesChan {
 			guard <- struct{}{} // would block if guard channel is already filled
 			go func(pageToConvert *manga.PageContainer) {
-				defer wgConvertedPages.Done()
+				defer func() {
+					wgConvertedPages.Done()
+					pageToConvert.Close() // Clean up resources
+					<-guard
+				}()
+
 				convertedPage, err := converter.convertPage(pageToConvert, quality)
 				if err != nil {
 					if convertedPage == nil {
 						errChan <- err
-						<-guard
 						return
 					}
 					buffer := new(bytes.Buffer)
 					err := png.Encode(buffer, convertedPage.Image)
 					if err != nil {
 						errChan <- err
-						<-guard
 						return
 					}
 					convertedPage.Page.Contents = buffer
@@ -99,11 +104,12 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 				pages = append(pages, convertedPage.Page)
 				progress(fmt.Sprintf("Converted %d/%d pages to %s format", len(pages), totalPages, converter.Format()), uint32(len(pages)), totalPages)
 				pagesMutex.Unlock()
-				<-guard
 			}(page)
 		}
+		close(doneChan)
 	}()
 
+	// Process pages
 	for _, page := range chapter.Pages {
 		go func(page *manga.Page) {
 			defer wgPages.Done()
@@ -111,7 +117,6 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page, split)
 			if err != nil {
 				errChan <- err
-				// Partial error in this case, we want the page, but not converting it
 				if img != nil {
 					wgConvertedPages.Add(1)
 					pagesChan <- manga.NewContainer(page, img, format, false)
@@ -124,6 +129,7 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 				pagesChan <- manga.NewContainer(page, img, format, true)
 				return
 			}
+
 			images, err := converter.cropImage(img)
 			if err != nil {
 				errChan <- err
@@ -132,17 +138,25 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 
 			atomic.AddUint32(&totalPages, uint32(len(images)-1))
 			for i, img := range images {
-				page := &manga.Page{Index: page.Index, IsSplitted: true, SplitPartIndex: uint16(i)}
+				newPage := &manga.Page{
+					Index:          page.Index,
+					IsSplitted:     true,
+					SplitPartIndex: uint16(i),
+				}
 				wgConvertedPages.Add(1)
-				pagesChan <- manga.NewContainer(page, img, "N/A", true)
+				pagesChan <- manga.NewContainer(newPage, img, "N/A", true)
 			}
 		}(page)
 	}
 
 	wgPages.Wait()
-	wgConvertedPages.Wait()
 	close(pagesChan)
+
+	// Wait for all conversions to complete
+	<-doneChan
+	wgConvertedPages.Wait()
 	close(errChan)
+	close(guard)
 
 	var errList []error
 	for err := range errChan {
@@ -156,9 +170,9 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 
 	slices.SortFunc(pages, func(a, b *manga.Page) int {
 		if a.Index == b.Index {
-			return int(b.SplitPartIndex - a.SplitPartIndex)
+			return int(a.SplitPartIndex) - int(b.SplitPartIndex)
 		}
-		return int(b.Index - a.Index)
+		return int(a.Index) - int(b.Index)
 	})
 	chapter.Pages = pages
 
@@ -201,7 +215,7 @@ func (converter *Converter) cropImage(img image.Image) ([]image.Image, error) {
 }
 
 func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested bool) (bool, image.Image, string, error) {
-	reader := io.Reader(bytes.NewBuffer(page.Contents.Bytes()))
+	reader := bytes.NewBuffer(page.Contents.Bytes())
 	img, format, err := image.Decode(reader)
 	if err != nil {
 		return false, nil, format, err
@@ -217,7 +231,9 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested
 }
 
 func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8) (*manga.PageContainer, error) {
-	if container.Format == "webp" {
+	// Fix WebP format detection (case insensitive)
+	if container.Format == "webp" || container.Format == "WEBP" {
+		container.Page.Extension = ".webp"
 		return container, nil
 	}
 	if !container.IsToBeConverted {

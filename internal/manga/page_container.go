@@ -17,3 +17,11 @@ type PageContainer struct {
 func NewContainer(Page *Page, img image.Image, format string, isToBeConverted bool) *PageContainer {
 	return &PageContainer{Page: Page, Image: img, Format: format, IsToBeConverted: isToBeConverted}
 }
+
+// Close releases resources held by the PageContainer
+func (pc *PageContainer) Close() {
+	pc.Image = nil
+	if pc.Page != nil && pc.Page.Contents != nil {
+		pc.Page.Contents.Reset()
+	}
+}
