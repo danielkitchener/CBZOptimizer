@@ -4,10 +4,14 @@ import (
 	"bytes"
 	"image"
 	"image/color"
-	"image/draw"
+	"image/jpeg"
 	"image/png"
 	"sync"
 	"testing"
+
+	_ "image/jpeg"
+
+	_ "golang.org/x/image/webp"
 
 	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
@@ -15,24 +19,79 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createTestImage(width, height int) image.Image {
+func createTestImage(width, height int, format string) (image.Image, error) {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	draw.Draw(img, img.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
-	return img
+
+	// Create a gradient pattern to ensure we have actual image data
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.RGBA{
+				R: uint8((x * 255) / width),
+				G: uint8((y * 255) / height),
+				B: 100,
+				A: 255,
+			})
+		}
+	}
+	return img, nil
 }
 
-func createTestPage(t *testing.T, index int, width, height int) *manga.Page {
-	img := createTestImage(width, height)
-	var buf bytes.Buffer
-	err := png.Encode(&buf, img)
+func encodeImage(img image.Image, format string) (*bytes.Buffer, string, error) {
+	buf := new(bytes.Buffer)
+
+	switch format {
+	case "jpeg", "jpg":
+		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 85}); err != nil {
+			return nil, "", err
+		}
+		return buf, ".jpg", nil
+	case "webp":
+		PrepareEncoder()
+		if err := Encode(buf, img, 80); err != nil {
+			return nil, "", err
+		}
+		return buf, ".webp", nil
+	case "png":
+		fallthrough
+	default:
+		if err := png.Encode(buf, img); err != nil {
+			return nil, "", err
+		}
+		return buf, ".png", nil
+	}
+}
+
+func createTestPage(t *testing.T, index int, width, height int, format string) *manga.Page {
+	img, err := createTestImage(width, height, format)
+	require.NoError(t, err)
+
+	buf, ext, err := encodeImage(img, format)
 	require.NoError(t, err)
 
 	return &manga.Page{
 		Index:     uint16(index),
-		Contents:  &buf,
-		Extension: ".png",
+		Contents:  buf,
+		Extension: ext,
 		Size:      uint64(buf.Len()),
 	}
+}
+
+func validateConvertedImage(t *testing.T, page *manga.Page) {
+	require.NotNil(t, page.Contents)
+	require.Greater(t, page.Contents.Len(), 0)
+
+	// Try to decode the image
+	img, format, err := image.Decode(bytes.NewReader(page.Contents.Bytes()))
+	require.NoError(t, err, "Failed to decode converted image")
+
+	if page.Extension == ".webp" {
+		assert.Equal(t, "webp", format, "Expected WebP format")
+	}
+
+	require.NotNil(t, img)
+	bounds := img.Bounds()
+	assert.Greater(t, bounds.Dx(), 0, "Image width should be positive")
+	assert.Greater(t, bounds.Dy(), 0, "Image height should be positive")
 }
 
 // TestConverter_ConvertChapter tests the ConvertChapter method of the WebP converter.
@@ -63,7 +122,7 @@ func TestConverter_ConvertChapter(t *testing.T) {
 	}{
 		{
 			name:        "Single normal image",
-			pages:       []*manga.Page{createTestPage(t, 1, 800, 1200)},
+			pages:       []*manga.Page{createTestPage(t, 1, 800, 1200, "jpeg")},
 			split:       false,
 			expectSplit: false,
 			numExpected: 1,
@@ -71,8 +130,8 @@ func TestConverter_ConvertChapter(t *testing.T) {
 		{
 			name: "Multiple normal images",
 			pages: []*manga.Page{
-				createTestPage(t, 1, 800, 1200),
-				createTestPage(t, 2, 800, 1200),
+				createTestPage(t, 1, 800, 1200, "png"),
+				createTestPage(t, 2, 800, 1200, "jpeg"),
 			},
 			split:       false,
 			expectSplit: false,
@@ -80,14 +139,14 @@ func TestConverter_ConvertChapter(t *testing.T) {
 		},
 		{
 			name:        "Tall image with split enabled",
-			pages:       []*manga.Page{createTestPage(t, 1, 800, 5000)},
+			pages:       []*manga.Page{createTestPage(t, 1, 800, 5000, "jpeg")},
 			split:       true,
 			expectSplit: true,
 			numExpected: 3, // Based on cropHeight of 2000
 		},
 		{
 			name:        "Tall image without split",
-			pages:       []*manga.Page{createTestPage(t, 1, 800, webpMaxHeight+100)},
+			pages:       []*manga.Page{createTestPage(t, 1, 800, webpMaxHeight+100, "png")},
 			split:       false,
 			expectError: true,
 			numExpected: 1,
@@ -127,6 +186,11 @@ func TestConverter_ConvertChapter(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, convertedChapter)
 			assert.Len(t, convertedChapter.Pages, tt.numExpected)
+
+			// Validate all converted images
+			for _, page := range convertedChapter.Pages {
+				validateConvertedImage(t, page)
+			}
 
 			// Verify page order
 			for i := 1; i < len(convertedChapter.Pages); i++ {
@@ -189,9 +253,10 @@ func TestConverter_convertPage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			page := createTestPage(t, 1, 100, 100)
-			container := manga.NewContainer(page, createTestImage(100, 100), tt.format, tt.isToBeConverted)
-			defer container.Close()
+			page := createTestPage(t, 1, 100, 100, tt.format)
+			img, err := createTestImage(100, 100, tt.format)
+			require.NoError(t, err)
+			container := manga.NewContainer(page, img, tt.format, tt.isToBeConverted)
 
 			converted, err := converter.convertPage(container, 80)
 			require.NoError(t, err)
@@ -199,6 +264,7 @@ func TestConverter_convertPage(t *testing.T) {
 
 			if tt.expectWebP {
 				assert.Equal(t, ".webp", converted.Page.Extension)
+				validateConvertedImage(t, converted.Page)
 			} else {
 				assert.NotEqual(t, ".webp", converted.Page.Extension)
 			}
@@ -238,7 +304,7 @@ func TestConverter_checkPageNeedsSplit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			page := createTestPage(t, 1, 800, tt.imageHeight)
+			page := createTestPage(t, 1, 800, tt.imageHeight, "jpeg")
 
 			needsSplit, img, format, err := converter.checkPageNeedsSplit(page, tt.split)
 

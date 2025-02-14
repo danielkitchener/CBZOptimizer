@@ -80,7 +80,6 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 			go func(pageToConvert *manga.PageContainer) {
 				defer func() {
 					wgConvertedPages.Done()
-					pageToConvert.Close() // Clean up resources
 					<-guard
 				}()
 
@@ -243,9 +242,7 @@ func (converter *Converter) convertPage(container *manga.PageContainer, quality 
 	if err != nil {
 		return nil, err
 	}
-	container.Page.Contents = converted
-	container.Page.Extension = ".webp"
-	container.Page.Size = uint64(converted.Len())
+	container.SetConverted(converted, ".webp");
 	return container, nil
 }
 
