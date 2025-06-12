@@ -21,8 +21,8 @@ func init() {
 	}
 	command := &cobra.Command{
 		Use:   "watch [folder]",
-		Short: "Watch a folder for new CBZ files",
-		Long:  "Watch a folder for new CBZ files.\nIt will watch a folder for new CBZ files and optimize them.",
+		Short: "Watch a folder for new CBZ/CBR files",
+		Long:  "Watch a folder for new CBZ/CBR files.\nIt will watch a folder for new CBZ/CBR files and optimize them.",
 		RunE:  WatchCommand,
 		Args:  cobra.ExactArgs(1),
 	}
@@ -32,7 +32,7 @@ func init() {
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	_ = viper.BindPFlag("quality", command.Flags().Lookup("quality"))
 
-	command.Flags().BoolP("override", "o", true, "Override the original CBZ files")
+	command.Flags().BoolP("override", "o", true, "Override the original CBZ/CBR files")
 	_ = viper.BindPFlag("override", command.Flags().Lookup("override"))
 
 	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
@@ -107,7 +107,8 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 		for event := range events {
 			log.Printf("[Event]%s, %v\n", event.Filename, event.Events)
 
-			if !strings.HasSuffix(strings.ToLower(event.Filename), ".cbz") {
+			filename := strings.ToLower(event.Filename)
+			if !strings.HasSuffix(filename, ".cbz") && !strings.HasSuffix(filename, ".cbr") {
 				continue
 			}
 

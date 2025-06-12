@@ -16,8 +16,15 @@ func TestLoadChapter(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:               "Original Chapter",
+			name:               "Original Chapter CBZ",
 			filePath:           "../../testdata/Chapter 1.cbz",
+			expectedPages:      16,
+			expectedSeries:     "<Series>Boundless Necromancer</Series>",
+			expectedConversion: false,
+		},
+		{
+			name:               "Original Chapter CBR",
+			filePath:           "../../testdata/Chapter 1.cbr",
 			expectedPages:      16,
 			expectedSeries:     "<Series>Boundless Necromancer</Series>",
 			expectedConversion: false,

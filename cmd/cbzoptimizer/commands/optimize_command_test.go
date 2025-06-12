@@ -46,18 +46,21 @@ func TestConvertCbzCommand(t *testing.T) {
 		t.Fatalf("testdata directory not found")
 	}
 
-	// Copy sample CBZ files from testdata to the temporary directory
+	// Copy sample CBZ/CBR files from testdata to the temporary directory
 	err = filepath.Walk(testdataDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".cbz") {
-			destPath := filepath.Join(tempDir, info.Name())
-			data, err := os.ReadFile(path)
-			if err != nil {
-				return err
+		if !info.IsDir() {
+			fileName := strings.ToLower(info.Name())
+			if strings.HasSuffix(fileName, ".cbz") || strings.HasSuffix(fileName, ".cbr") {
+				destPath := filepath.Join(tempDir, info.Name())
+				data, err := os.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				return os.WriteFile(destPath, data, info.Mode())
 			}
-			return os.WriteFile(destPath, data, info.Mode())
 		}
 		return nil
 	})
@@ -78,7 +81,7 @@ func TestConvertCbzCommand(t *testing.T) {
 	}
 	cmd.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	cmd.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
-	cmd.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	cmd.Flags().BoolP("override", "o", false, "Override the original CBZ/CBR files")
 	cmd.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
 
 	// Execute the command
@@ -87,36 +90,82 @@ func TestConvertCbzCommand(t *testing.T) {
 		t.Fatalf("Command execution failed: %v", err)
 	}
 
-	// Verify the results
+	// Track expected converted files for verification
+	expectedFiles := make(map[string]bool)
+	convertedFiles := make(map[string]bool)
+
+	// First pass: identify original files and expected converted filenames
 	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() || !strings.HasSuffix(info.Name(), "_converted.cbz") {
+		if info.IsDir() {
 			return nil
 		}
-		t.Logf("CBZ file found: %s", path)
+		fileName := strings.ToLower(info.Name())
+		if strings.HasSuffix(fileName, ".cbz") || strings.HasSuffix(fileName, ".cbr") {
+			if !strings.Contains(fileName, "_converted") {
+				// This is an original file, determine expected converted filename
+				baseName := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
+				expectedConverted := baseName + "_converted.cbz"
+				expectedFiles[expectedConverted] = false // false means not yet found
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("Error identifying original files: %v", err)
+	}
 
-		// Load the converted chapter
-		chapter, err := cbz.LoadChapter(path)
+	// Second pass: verify converted files exist and are properly converted
+	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
-		// Check if the chapter is marked as converted
-		if !chapter.IsConverted {
-			t.Errorf("Chapter is not marked as converted: %s", path)
+		if info.IsDir() {
+			return nil
 		}
+		fileName := info.Name()
 
-		// Check if the ConvertedTime is set
-		if chapter.ConvertedTime.IsZero() {
-			t.Errorf("ConvertedTime is not set for chapter: %s", path)
+		// Check if this is a converted file (should only be .cbz, never .cbr)
+		if strings.HasSuffix(fileName, "_converted.cbz") {
+			convertedFiles[fileName] = true
+			expectedFiles[fileName] = true // Mark as found
+			t.Logf("Archive file found: %s", path)
+
+			// Load the converted chapter
+			chapter, err := cbz.LoadChapter(path)
+			if err != nil {
+				return err
+			}
+
+			// Check if the chapter is marked as converted
+			if !chapter.IsConverted {
+				t.Errorf("Chapter is not marked as converted: %s", path)
+			}
+
+			// Check if the ConvertedTime is set
+			if chapter.ConvertedTime.IsZero() {
+				t.Errorf("ConvertedTime is not set for chapter: %s", path)
+			}
+			t.Logf("Archive file [%s] is converted: %s", path, chapter.ConvertedTime)
+		} else if strings.HasSuffix(fileName, "_converted.cbr") {
+			t.Errorf("Found incorrectly named converted file: %s (should be .cbz, not .cbr)", fileName)
 		}
-		t.Logf("CBZ file [%s] is converted: %s", path, chapter.ConvertedTime)
 
 		return nil
 	})
 	if err != nil {
 		t.Fatalf("Error verifying converted files: %v", err)
 	}
+
+	// Verify all expected files were found
+	for expectedFile, found := range expectedFiles {
+		if !found {
+			t.Errorf("Expected converted file not found: %s", expectedFile)
+		}
+	}
+
+	// Log summary
+	t.Logf("Found %d converted files", len(convertedFiles))
 }
