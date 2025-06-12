@@ -18,8 +18,8 @@ var converterType constant.ConversionFormat
 func init() {
 	command := &cobra.Command{
 		Use:   "optimize [folder]",
-		Short: "Optimize all CBZ files in a folder recursively",
-		Long:  "Optimize all CBZ files in a folder recursively.\nIt will take all the different pages in the CBZ files and convert them to the given format.\nThe original CBZ files will be kept intact depending if you choose to override or not.",
+		Short: "Optimize all CBZ/CBR files in a folder recursively",
+		Long:  "Optimize all CBZ/CBR files in a folder recursively.\nIt will take all the different pages in the CBZ/CBR files and convert them to the given format.\nThe original CBZ/CBR files will be kept intact depending if you choose to override or not.",
 		RunE:  ConvertCbzCommand,
 		Args:  cobra.ExactArgs(1),
 	}
@@ -28,7 +28,7 @@ func init() {
 
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
 	command.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
-	command.Flags().BoolP("override", "o", false, "Override the original CBZ files")
+	command.Flags().BoolP("override", "o", false, "Override the original CBZ/CBR files")
 	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
 	command.PersistentFlags().VarP(
 		formatFlag,
@@ -112,8 +112,11 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".cbz") {
-			fileChan <- path
+		if !info.IsDir() {
+			fileName := strings.ToLower(info.Name())
+			if strings.HasSuffix(fileName, ".cbz") || strings.HasSuffix(fileName, ".cbr") {
+				fileChan <- path
+			}
 		}
 
 		return nil

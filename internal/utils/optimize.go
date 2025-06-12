@@ -18,7 +18,7 @@ type OptimizeOptions struct {
 	Split            bool
 }
 
-// Optimize optimizes a CBZ file using the specified converter.
+// Optimize optimizes a CBZ/CBR file using the specified converter.
 func Optimize(options *OptimizeOptions) error {
 	log.Printf("Processing file: %s\n", options.Path)
 
@@ -54,7 +54,16 @@ func Optimize(options *OptimizeOptions) error {
 	// Write the converted chapter back to a CBZ file
 	outputPath := options.Path
 	if !options.Override {
-		outputPath = strings.TrimSuffix(options.Path, ".cbz") + "_converted.cbz"
+		// Handle both .cbz and .cbr files - strip the extension and add _converted.cbz
+		pathLower := strings.ToLower(options.Path)
+		if strings.HasSuffix(pathLower, ".cbz") {
+			outputPath = strings.TrimSuffix(options.Path, ".cbz") + "_converted.cbz"
+		} else if strings.HasSuffix(pathLower, ".cbr") {
+			outputPath = strings.TrimSuffix(options.Path, ".cbr") + "_converted.cbz"
+		} else {
+			// Fallback for other extensions - just add _converted.cbz
+			outputPath = options.Path + "_converted.cbz"
+		}
 	}
 	err = cbz.WriteChapterToCBZ(convertedChapter, outputPath)
 	if err != nil {
