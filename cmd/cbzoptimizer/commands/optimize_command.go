@@ -32,6 +32,7 @@ func init() {
 	command.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	command.Flags().BoolP("override", "o", false, "Override the original CBZ/CBR files")
 	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
+	command.Flags().DurationP("timeout", "t", 0, "Maximum time allowed for converting a single chapter (e.g., 30s, 5m, 1h). 0 means no timeout")
 	command.PersistentFlags().VarP(
 		formatFlag,
 		"format", "f",
@@ -80,6 +81,13 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	}
 	log.Debug().Bool("split", split).Msg("Split parameter parsed")
 
+	timeout, err := cmd.Flags().GetDuration("timeout")
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to parse timeout flag")
+		return fmt.Errorf("invalid timeout value")
+	}
+	log.Debug().Dur("timeout", timeout).Msg("Timeout parameter parsed")
+
 	parallelism, err := cmd.Flags().GetInt("parallelism")
 	if err != nil || parallelism < 1 {
 		log.Error().Err(err).Int("parallelism", parallelism).Msg("Invalid parallelism value")
@@ -126,6 +134,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 					Quality:          quality,
 					Override:         override,
 					Split:            split,
+					Timeout:          timeout,
 				})
 				if err != nil {
 					log.Error().Int("worker_id", workerID).Str("file_path", path).Err(err).Msg("Worker encountered error")

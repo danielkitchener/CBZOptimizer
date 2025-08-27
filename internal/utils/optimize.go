@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
@@ -19,6 +21,7 @@ type OptimizeOptions struct {
 	Quality          uint8
 	Override         bool
 	Split            bool
+	Timeout          time.Duration
 }
 
 // Optimize optimizes a CBZ/CBR file using the specified converter.
@@ -57,7 +60,17 @@ func Optimize(options *OptimizeOptions) error {
 		Bool("split", options.Split).
 		Msg("Starting chapter conversion")
 
-	convertedChapter, err := options.ChapterConverter.ConvertChapter(chapter, options.Quality, options.Split, func(msg string, current uint32, total uint32) {
+	var ctx context.Context
+	if options.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), options.Timeout)
+		defer cancel()
+		log.Debug().Str("file", chapter.FilePath).Dur("timeout", options.Timeout).Msg("Applying timeout to chapter conversion")
+	} else {
+		ctx = context.Background()
+	}
+
+	convertedChapter, err := options.ChapterConverter.ConvertChapter(ctx, chapter, options.Quality, options.Split, func(msg string, current uint32, total uint32) {
 		if current%10 == 0 || current == total {
 			log.Info().Str("file", chapter.FilePath).Uint32("current", current).Uint32("total", total).Msg("Converting")
 		} else {

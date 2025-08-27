@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,9 +20,30 @@ type MockConverter struct {
 	shouldFail bool
 }
 
-func (m *MockConverter) ConvertChapter(chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	if m.shouldFail {
 		return nil, &MockError{message: "mock conversion error"}
+	}
+
+	// Check if context is already cancelled
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	// Simulate some work that can be interrupted by context cancellation
+	for i := 0; i < len(chapter.Pages); i++ {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			// Simulate processing time
+			time.Sleep(100 * time.Microsecond)
+			if progress != nil {
+				progress(fmt.Sprintf("Converting page %d/%d", i+1, len(chapter.Pages)), uint32(i+1), uint32(len(chapter.Pages)))
+			}
+		}
 	}
 
 	// Create a copy of the chapter to simulate conversion
@@ -192,6 +215,7 @@ func TestOptimize(t *testing.T) {
 				Quality:          85,
 				Override:         tt.override,
 				Split:            false,
+				Timeout:          0,
 			}
 
 			// Run optimization
@@ -305,6 +329,7 @@ func TestOptimize_AlreadyConverted(t *testing.T) {
 		Quality:          85,
 		Override:         false,
 		Split:            false,
+		Timeout:          0,
 	}
 
 	err = Optimize(options)
@@ -326,10 +351,74 @@ func TestOptimize_InvalidFile(t *testing.T) {
 		Quality:          85,
 		Override:         false,
 		Split:            false,
+		Timeout:          0,
 	}
 
 	err := Optimize(options)
 	if err == nil {
 		t.Error("Expected error for nonexistent file")
+	}
+}
+
+func TestOptimize_Timeout(t *testing.T) {
+	// Create temporary directory
+	tempDir, err := os.MkdirTemp("", "test_optimize_timeout")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer errs.CaptureGeneric(&err, os.RemoveAll, tempDir, "failed to remove temporary directory")
+
+	// Copy test files
+	testdataDir := "../../testdata"
+	if _, err := os.Stat(testdataDir); os.IsNotExist(err) {
+		t.Skip("testdata directory not found, skipping tests")
+	}
+
+	var cbzFile string
+	err = filepath.Walk(testdataDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".cbz") && !strings.Contains(info.Name(), "converted") {
+			destPath := filepath.Join(tempDir, "test.cbz")
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(destPath, data, info.Mode())
+			if err != nil {
+				return err
+			}
+			cbzFile = destPath
+			return filepath.SkipDir
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cbzFile == "" {
+		t.Skip("No CBZ test file found")
+	}
+
+	// Test with short timeout (500 microseconds) to force timeout during conversion
+	options := &OptimizeOptions{
+		ChapterConverter: &MockConverter{},
+		Path:             cbzFile,
+		Quality:          85,
+		Override:         false,
+		Split:            false,
+		Timeout:          500 * time.Microsecond, // 500 microseconds - should timeout during page processing
+	}
+
+	err = Optimize(options)
+	if err == nil {
+		t.Error("Expected timeout error but got none")
+	}
+
+	// Check that the error contains timeout information
+	if !strings.Contains(err.Error(), "context deadline exceeded") {
+		t.Errorf("Expected timeout error message, got: %v", err)
 	}
 }

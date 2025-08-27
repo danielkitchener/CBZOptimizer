@@ -2,6 +2,7 @@ package webp
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"image"
@@ -53,7 +54,7 @@ func (converter *Converter) PrepareConverter() error {
 	return nil
 }
 
-func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (converter *Converter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	log.Debug().
 		Str("chapter", chapter.FilePath).
 		Int("pages", len(chapter.Pages)).
@@ -89,26 +90,55 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 		Int("worker_count", maxGoroutines).
 		Msg("Initialized conversion worker pool")
 
+	// Check if context is already cancelled
+	select {
+	case <-ctx.Done():
+		log.Warn().Str("chapter", chapter.FilePath).Msg("Chapter conversion cancelled due to timeout")
+		return nil, ctx.Err()
+	default:
+	}
+
 	// Start the worker pool
 	go func() {
+		defer close(doneChan)
 		for page := range pagesChan {
-			guard <- struct{}{} // would block if guard channel is already filled
+			select {
+			case <-ctx.Done():
+				return
+			case guard <- struct{}{}: // would block if guard channel is already filled
+			}
+
 			go func(pageToConvert *manga.PageContainer) {
 				defer func() {
 					wgConvertedPages.Done()
 					<-guard
 				}()
 
+				// Check context cancellation before processing
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
 				convertedPage, err := converter.convertPage(pageToConvert, quality)
 				if err != nil {
 					if convertedPage == nil {
-						errChan <- err
+						select {
+						case errChan <- err:
+						case <-ctx.Done():
+							return
+						}
 						return
 					}
 					buffer := new(bytes.Buffer)
 					err := png.Encode(buffer, convertedPage.Image)
 					if err != nil {
-						errChan <- err
+						select {
+						case errChan <- err:
+						case <-ctx.Done():
+							return
+						}
 						return
 					}
 					convertedPage.Page.Contents = buffer
@@ -121,45 +151,77 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 				pagesMutex.Unlock()
 			}(page)
 		}
-		close(doneChan)
 	}()
 
 	// Process pages
 	for _, page := range chapter.Pages {
+		select {
+		case <-ctx.Done():
+			log.Warn().Str("chapter", chapter.FilePath).Msg("Chapter conversion cancelled due to timeout")
+			return nil, ctx.Err()
+		default:
+		}
+
 		go func(page *manga.Page) {
 			defer wgPages.Done()
 
 			splitNeeded, img, format, err := converter.checkPageNeedsSplit(page, split)
 			if err != nil {
-				errChan <- err
+				select {
+				case errChan <- err:
+				case <-ctx.Done():
+					return
+				}
 				if img != nil {
 					wgConvertedPages.Add(1)
-					pagesChan <- manga.NewContainer(page, img, format, false)
+					select {
+					case pagesChan <- manga.NewContainer(page, img, format, false):
+					case <-ctx.Done():
+						return
+					}
 				}
 				return
 			}
 
 			if !splitNeeded {
 				wgConvertedPages.Add(1)
-				pagesChan <- manga.NewContainer(page, img, format, true)
+				select {
+				case pagesChan <- manga.NewContainer(page, img, format, true):
+				case <-ctx.Done():
+					return
+				}
 				return
 			}
 
 			images, err := converter.cropImage(img)
 			if err != nil {
-				errChan <- err
+				select {
+				case errChan <- err:
+				case <-ctx.Done():
+					return
+				}
 				return
 			}
 
 			atomic.AddUint32(&totalPages, uint32(len(images)-1))
 			for i, img := range images {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
 				newPage := &manga.Page{
 					Index:          page.Index,
 					IsSplitted:     true,
 					SplitPartIndex: uint16(i),
 				}
 				wgConvertedPages.Add(1)
-				pagesChan <- manga.NewContainer(newPage, img, "N/A", true)
+				select {
+				case pagesChan <- manga.NewContainer(newPage, img, "N/A", true):
+				case <-ctx.Done():
+					return
+				}
 			}
 		}(page)
 	}
@@ -167,9 +229,21 @@ func (converter *Converter) ConvertChapter(chapter *manga.Chapter, quality uint8
 	wgPages.Wait()
 	close(pagesChan)
 
-	// Wait for all conversions to complete
-	<-doneChan
-	wgConvertedPages.Wait()
+	// Wait for all conversions to complete or context cancellation
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		wgConvertedPages.Wait()
+	}()
+
+	select {
+	case <-done:
+		// Conversion completed successfully
+	case <-ctx.Done():
+		log.Warn().Str("chapter", chapter.FilePath).Msg("Chapter conversion cancelled due to timeout")
+		return nil, ctx.Err()
+	}
+
 	close(errChan)
 	close(guard)
 

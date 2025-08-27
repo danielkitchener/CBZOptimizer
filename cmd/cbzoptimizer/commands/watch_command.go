@@ -39,6 +39,9 @@ func init() {
 	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
 	_ = viper.BindPFlag("split", command.Flags().Lookup("split"))
 
+	command.Flags().DurationP("timeout", "t", 0, "Maximum time allowed for converting a single chapter (e.g., 30s, 5m, 1h). 0 means no timeout")
+	_ = viper.BindPFlag("timeout", command.Flags().Lookup("timeout"))
+
 	command.PersistentFlags().VarP(
 		formatFlag,
 		"format", "f",
@@ -66,6 +69,8 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	override := viper.GetBool("override")
 
 	split := viper.GetBool("split")
+
+	timeout := viper.GetDuration("timeout")
 
 	converterType := constant.FindConversionFormat(viper.GetString("format"))
 	chapterConverter, err := converter.Get(converterType)
@@ -122,6 +127,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 						Quality:          quality,
 						Override:         override,
 						Split:            split,
+						Timeout:          timeout,
 					})
 					if err != nil {
 						errors <- fmt.Errorf("error processing file %s: %w", event.Filename, err)

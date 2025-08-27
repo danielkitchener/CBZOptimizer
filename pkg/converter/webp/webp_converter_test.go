@@ -2,12 +2,14 @@ package webp
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/color"
+	"image/jpeg"
 	"image/png"
 	"sync"
 	"testing"
-	"image/jpeg"
+
 	_ "golang.org/x/image/webp"
 
 	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
@@ -170,7 +172,7 @@ func TestConverter_ConvertChapter(t *testing.T) {
 				assert.LessOrEqual(t, current, total, "Current progress should not exceed total")
 			}
 
-			convertedChapter, err := converter.ConvertChapter(chapter, 80, tt.split, progress)
+			convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, 80, tt.split, progress)
 
 			if tt.expectError {
 				assert.Error(t, err)
@@ -321,4 +323,43 @@ func TestConverter_checkPageNeedsSplit(t *testing.T) {
 func TestConverter_Format(t *testing.T) {
 	converter := New()
 	assert.Equal(t, constant.WebP, converter.Format())
+}
+
+func TestConverter_ConvertChapter_Timeout(t *testing.T) {
+	converter := New()
+	err := converter.PrepareConverter()
+	require.NoError(t, err)
+
+	// Create a test chapter with a few pages
+	pages := []*manga.Page{
+		createTestPage(t, 1, 800, 1200, "jpeg"),
+		createTestPage(t, 2, 800, 1200, "jpeg"),
+		createTestPage(t, 3, 800, 1200, "jpeg"),
+	}
+
+	chapter := &manga.Chapter{
+		FilePath: "/test/chapter.cbz",
+		Pages:    pages,
+	}
+
+	var progressMutex sync.Mutex
+	var lastProgress uint32
+	progress := func(message string, current uint32, total uint32) {
+		progressMutex.Lock()
+		defer progressMutex.Unlock()
+		assert.GreaterOrEqual(t, current, lastProgress, "Progress should never decrease")
+		lastProgress = current
+		assert.LessOrEqual(t, current, total, "Current progress should not exceed total")
+	}
+
+	// Test with very short timeout (1 nanosecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 1)
+	defer cancel()
+
+	convertedChapter, err := converter.ConvertChapter(ctx, chapter, 80, false, progress)
+
+	// Should return context error due to timeout
+	assert.Error(t, err)
+	assert.Nil(t, convertedChapter)
+	assert.Equal(t, context.DeadlineExceeded, err)
 }

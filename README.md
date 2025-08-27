@@ -12,6 +12,7 @@ CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) and CB
 - Process multiple chapters in parallel.
 - Option to override the original files (CBR files are converted to CBZ and original CBR is deleted).
 - Watch a folder for new CBZ/CBR files and optimize them automatically.
+- Set time limits for chapter conversion to avoid hanging on problematic files.
 
 ## Installation
 
@@ -41,6 +42,12 @@ Optimize all CBZ/CBR files in a folder recursively:
 cbzconverter optimize [folder] --quality 85 --parallelism 2 --override --format webp --split
 ```
 
+With timeout to avoid hanging on problematic chapters:
+
+```sh
+cbzconverter optimize [folder] --timeout 10m --quality 85
+```
+
 Or with Docker:
 
 ```sh
@@ -68,6 +75,7 @@ docker run -v /path/to/comics:/comics ghcr.io/belphemur/cbzoptimizer:latest watc
 - `--override`, `-o`: Override the original files. For CBZ files, overwrites the original. For CBR files, deletes the original CBR and creates a new CBZ. Default is false.
 - `--split`, `-s`: Split long pages into smaller chunks. Default is false.
 - `--format`, `-f`: Format to convert the images to (e.g., webp). Default is webp.
+- `--timeout`, `-t`: Maximum time allowed for converting a single chapter (e.g., 30s, 5m, 1h). 0 means no timeout. Default is 0.
 - `--log`, `-l`: Set log level; can be 'panic', 'fatal', 'error', 'warn', 'info', 'debug', or 'trace'. Default is info.
 
 ## Logging
