@@ -15,17 +15,17 @@ CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) and CB
 
 ## Installation
 
-1. Clone the repository:
+### Download Binary
+
+Download the latest release from [GitHub Releases](https://github.com/belphemur/CBZOptimizer/releases).
+
+### Docker
+
+Pull the Docker image:
 
 ```sh
-git clone https://github.com/belphemur/CBZOptimizer.git
-cd CBZOptimizer
+docker pull ghcr.io/belphemur/cbzoptimizer:latest
 ```
-
-2. Install dependencies:
-   ```sh
-   go mod tidy
-   ```
 
 ## Usage
 
@@ -38,7 +38,13 @@ The tool provides CLI commands to optimize and watch CBZ/CBR files. Below are ex
 Optimize all CBZ/CBR files in a folder recursively:
 
 ```sh
-go run main.go optimize [folder] --quality 85 --parallelism 2 --override --format webp --split
+cbzconverter optimize [folder] --quality 85 --parallelism 2 --override --format webp --split
+```
+
+Or with Docker:
+
+```sh
+docker run -v /path/to/comics:/comics ghcr.io/belphemur/cbzoptimizer:latest optimize /comics --quality 85 --parallelism 2 --override --format webp --split
 ```
 
 #### Watch Command
@@ -46,7 +52,13 @@ go run main.go optimize [folder] --quality 85 --parallelism 2 --override --forma
 Watch a folder for new CBZ/CBR files and optimize them automatically:
 
 ```sh
-go run main.go watch [folder] --quality 85 --override --format webp --split
+cbzconverter watch [folder] --quality 85 --override --format webp --split
+```
+
+Or with Docker:
+
+```sh
+docker run -v /path/to/comics:/comics ghcr.io/belphemur/cbzoptimizer:latest watch /comics --quality 85 --override --format webp --split
 ```
 
 ### Flags
@@ -56,34 +68,90 @@ go run main.go watch [folder] --quality 85 --override --format webp --split
 - `--override`, `-o`: Override the original files. For CBZ files, overwrites the original. For CBR files, deletes the original CBR and creates a new CBZ. Default is false.
 - `--split`, `-s`: Split long pages into smaller chunks. Default is false.
 - `--format`, `-f`: Format to convert the images to (e.g., webp). Default is webp.
+- `--log`, `-l`: Set log level; can be 'panic', 'fatal', 'error', 'warn', 'info', 'debug', or 'trace'. Default is info.
 
-## Testing
+## Logging
 
-To run the tests, use the following command:
+CBZOptimizer uses structured logging with [zerolog](https://github.com/rs/zerolog) for consistent and performant logging output.
+
+### Log Levels
+
+You can control the verbosity of logging using either command-line flags or environment variables:
+
+**Command Line:**
 
 ```sh
-go test ./... -v
+# Set log level to debug for detailed output
+cbzconverter --log debug optimize [folder]
+
+# Set log level to error for minimal output
+cbzconverter --log error optimize [folder]
 ```
 
-## Requirement
+**Environment Variable:**
 
-Needs to have libwep installed on the machine if you're not using the docker image
+```sh
+# Set log level via environment variable
+LOG_LEVEL=debug cbzconverter optimize [folder]
+```
 
-## Docker
+**Docker:**
 
-`ghcr.io/belphemur/cbzoptimizer:latest`
+```sh
+# Set log level via environment variable in Docker
+docker run -e LOG_LEVEL=debug -v /path/to/comics:/comics ghcr.io/belphemur/cbzoptimizer:latest optimize /comics
+```
 
-## GitHub Actions
+### Available Log Levels
 
-The project includes a GitHub Actions workflow to run tests on every push and pull request to the `main` branch. The workflow is defined in `.github/workflows/go.yml`.
+- `panic`: Logs panic level messages and above
+- `fatal`: Logs fatal level messages and above
+- `error`: Logs error level messages and above
+- `warn`: Logs warning level messages and above
+- `info`: Logs info level messages and above (default)
+- `debug`: Logs debug level messages and above
+- `trace`: Logs all messages including trace level
 
-## Contributing
+### Examples
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a new Pull Request.
+```sh
+# Default info level logging
+cbzconverter optimize comics/
+
+# Debug level for troubleshooting
+cbzconverter --log debug optimize comics/
+
+# Quiet operation (only errors and above)
+cbzconverter --log error optimize comics/
+
+# Using environment variable
+LOG_LEVEL=warn cbzconverter optimize comics/
+
+# Docker with debug logging
+docker run -e LOG_LEVEL=debug -v /path/to/comics:/comics ghcr.io/belphemur/cbzoptimizer:latest optimize /comics
+```
+
+## Requirements
+
+- For Docker usage: No additional requirements needed
+- For binary usage: Needs `libwebp` installed on the system for WebP conversion
+
+## Docker Image
+
+The official Docker image is available at: `ghcr.io/belphemur/cbzoptimizer:latest`
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. Use `--log debug` for detailed logging output
+2. Check that all required dependencies are installed
+3. Ensure proper file permissions for input/output directories
+4. For Docker usage, verify volume mounts are correct
+
+## Support
+
+For issues and questions, please use [GitHub Issues](https://github.com/belphemur/CBZOptimizer/issues).
 
 ## License
 
