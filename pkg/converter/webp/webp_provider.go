@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-const libwebpVersion = "1.5.0"
+const libwebpVersion = "1.6.0"
 
 func PrepareEncoder() error {
 	webpbin.SetLibVersion(libwebpVersion)
