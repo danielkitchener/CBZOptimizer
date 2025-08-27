@@ -54,10 +54,20 @@ func init() {
 	viper.AutomaticEnv()
 
 	// Add log level flag (accepts zerolog levels: panic, fatal, error, warn, info, debug, trace)
+	ef := enumflag.New(&logLevel, "log", LogLevelIds, enumflag.EnumCaseInsensitive)
 	rootCmd.PersistentFlags().VarP(
-		enumflag.New(&logLevel, "log", LogLevelIds, enumflag.EnumCaseInsensitive),
+		ef,
 		"log", "l",
 		"Set log level; can be 'panic', 'fatal', 'error', 'warn', 'info', 'debug', or 'trace'")
+	ef.RegisterCompletion(rootCmd, "log", enumflag.Help[zerolog.Level]{
+		zerolog.PanicLevel: "Only log panic messages",
+		zerolog.FatalLevel: "Log fatal and panic messages",
+		zerolog.ErrorLevel: "Log error, fatal, and panic messages",
+		zerolog.WarnLevel:  "Log warn, error, fatal, and panic messages",
+		zerolog.InfoLevel:  "Log info, warn, error, fatal, and panic messages",
+		zerolog.DebugLevel: "Log debug, info, warn, error, fatal, and panic messages",
+		zerolog.TraceLevel: "Log all messages including trace",
+	})
 
 	// Add log level environment variable support
 	viper.BindEnv("log", "LOG_LEVEL")
