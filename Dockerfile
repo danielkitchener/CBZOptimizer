@@ -1,21 +1,22 @@
-FROM alpine:latest
+FROM alpine
 LABEL authors="Belphemur"
 ARG APP_PATH=/usr/local/bin/CBZOptimizer
+ARG TARGETPLATFORM
 ENV USER=abc
 ENV CONFIG_FOLDER=/config
 ENV PUID=99
 
 RUN mkdir -p "${CONFIG_FOLDER}" && \
     adduser \
-        -S \
-        -H \
-        -h "${CONFIG_FOLDER}" \
-        -G "users" \
-        -u "${PUID}" \
-        "${USER}" && \
-        chown ${PUID}:users "${CONFIG_FOLDER}"
+    -S \
+    -H \
+    -h "${CONFIG_FOLDER}" \
+    -G "users" \
+    -u "${PUID}" \
+    "${USER}" && \
+    chown ${PUID}:users "${CONFIG_FOLDER}"
 
-COPY CBZOptimizer ${APP_PATH}
+COPY $TARGETPLATFORM/CBZOptimizer ${APP_PATH}
 
 RUN apk add --no-cache \
     inotify-tools \
