@@ -2,8 +2,6 @@ module github.com/belphemur/CBZOptimizer/v2
 
 go 1.25
 
-toolchain go1.25.0
-
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/belphemur/go-webpbin/v2 v2.0.0

@@ -13,8 +13,5 @@ var (
 func main() {
 	commands.SetVersionInfo(version, commit, date)
 
-	// Configure logging before executing commands
-	commands.ConfigureLogging()
-
 	commands.Execute()
 }

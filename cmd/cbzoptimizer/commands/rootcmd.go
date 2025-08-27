@@ -60,8 +60,14 @@ func init() {
 		"Set log level; can be 'panic', 'fatal', 'error', 'warn', 'info', 'debug', or 'trace'")
 
 	// Add log level environment variable support
-	viper.SetEnvPrefix("")
-	viper.BindEnv("LOG_LEVEL")
+	viper.BindEnv("log", "LOG_LEVEL")
+	viper.BindPFlag("log", rootCmd.PersistentFlags().Lookup("log"))
+
+	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		ConfigureLogging()
+	}
+
+	// Ensure the configuration directory exists
 
 	err := os.MkdirAll(configFolder, os.ModePerm)
 	if err != nil {
@@ -95,7 +101,7 @@ func ConfigureLogging() {
 	level := zerolog.InfoLevel
 
 	// Check LOG_LEVEL environment variable first
-	envLogLevel := viper.GetString("LOG_LEVEL")
+	envLogLevel := viper.GetString("log")
 	if envLogLevel != "" {
 		if parsedLevel, err := zerolog.ParseLevel(envLogLevel); err == nil {
 			level = parsedLevel
