@@ -85,6 +85,7 @@ func TestConvertCbzCommand(t *testing.T) {
 	cmd.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	cmd.Flags().BoolP("override", "o", false, "Override the original CBZ/CBR files")
 	cmd.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
+	cmd.Flags().DurationP("timeout", "t", 0, "Maximum time allowed for converting a single chapter (e.g., 30s, 5m, 1h). 0 means no timeout")
 
 	// Execute the command
 	err = ConvertCbzCommand(cmd, []string{tempDir})
