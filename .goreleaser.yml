@@ -48,6 +48,9 @@ builds:
 # https://goreleaser.com/customization/checksum
 checksum:
   name_template: "checksums.txt"
+# Change the digests filename:
+docker_digests:
+  name_template: "digests.txt"
 # create a source tarball
 # https://goreleaser.com/customization/source/
 source:
