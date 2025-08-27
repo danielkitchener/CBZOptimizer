@@ -83,8 +83,7 @@ dockers_v2:
       "org.opencontainers.image.revision": "{{.FullCommit}}"
       "org.opencontainers.image.version": "{{.Version}}"
       "org.opencontainers.image.source": "{{.GitURL}}"
-    build_flag_templates:
-      - "--pull"
+      "org.opencontainers.image.authors": "Belphemur"
 # signs the checksum file
 # all files (including the sboms) are included in the checksum, so we don't need to sign each one if we don't want to
 # https://goreleaser.com/customization/sign
