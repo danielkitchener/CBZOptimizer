@@ -1,6 +1,6 @@
 module github.com/belphemur/CBZOptimizer/v2
 
-go 1.24.0
+go 1.25
 
 toolchain go1.25.0
 
@@ -10,6 +10,7 @@ require (
 	github.com/mholt/archives v0.1.3
 	github.com/oliamb/cutter v0.2.2
 	github.com/pablodz/inotifywaitgo v0.0.9
+	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.51.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
@@ -38,6 +39,8 @@ require (
 	github.com/jfrog/archiver/v3 v3.6.1 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.0 // indirect
 	github.com/nwaples/rardecode v1.1.3 // indirect

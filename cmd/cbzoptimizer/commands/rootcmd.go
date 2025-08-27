@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -53,8 +54,7 @@ func init() {
 // Execute executes the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("Command execution failed")
 	}
 }
 func AddCommand(cmd *cobra.Command) {

@@ -2,17 +2,18 @@ package commands
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
+	"sync"
+
 	utils2 "github.com/belphemur/CBZOptimizer/v2/internal/utils"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/pablodz/inotifywaitgo/inotifywaitgo"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/thediveo/enumflag/v2"
-	"log"
-	"runtime"
-	"strings"
-	"sync"
 )
 
 func init() {
@@ -76,7 +77,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to prepare converter: %v", err)
 	}
-	log.Printf("Watching [%s] with [override: %t, quality: %d, format: %s, split: %t]", path, override, quality, converterType.String(), split)
+	log.Info().Str("path", path).Bool("override", override).Uint8("quality", quality).Str("format", converterType.String()).Bool("split", split).Msg("Watching directory")
 
 	events := make(chan inotifywaitgo.FileEvent)
 	errors := make(chan error)
@@ -105,7 +106,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	go func() {
 		defer wg.Done()
 		for event := range events {
-			log.Printf("[Event]%s, %v\n", event.Filename, event.Events)
+			log.Debug().Str("file", event.Filename).Interface("events", event.Events).Msg("File event")
 
 			filename := strings.ToLower(event.Filename)
 			if !strings.HasSuffix(filename, ".cbz") && !strings.HasSuffix(filename, ".cbr") {
@@ -136,7 +137,7 @@ func WatchCommand(_ *cobra.Command, args []string) error {
 	go func() {
 		defer wg.Done()
 		for err := range errors {
-			log.Printf("Error: %v\n", err)
+			log.Error().Err(err).Msg("Watch error")
 		}
 	}()
 

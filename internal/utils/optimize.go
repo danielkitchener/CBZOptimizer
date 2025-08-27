@@ -10,7 +10,7 @@ import (
 	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
 	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
 	errors2 "github.com/belphemur/CBZOptimizer/v2/pkg/converter/errors"
-	"log"
+	"github.com/rs/zerolog/log"
 )
 
 type OptimizeOptions struct {
@@ -23,7 +23,7 @@ type OptimizeOptions struct {
 
 // Optimize optimizes a CBZ/CBR file using the specified converter.
 func Optimize(options *OptimizeOptions) error {
-	log.Printf("Processing file: %s\n", options.Path)
+	log.Info().Str("file", options.Path).Msg("Processing file")
 
 	// Load the chapter
 	chapter, err := cbz.LoadChapter(options.Path)
@@ -32,14 +32,14 @@ func Optimize(options *OptimizeOptions) error {
 	}
 
 	if chapter.IsConverted {
-		log.Printf("Chapter already converted: %s", options.Path)
+		log.Info().Str("file", options.Path).Msg("Chapter already converted")
 		return nil
 	}
 
 	// Convert the chapter
 	convertedChapter, err := options.ChapterConverter.ConvertChapter(chapter, options.Quality, options.Split, func(msg string, current uint32, total uint32) {
 		if current%10 == 0 || current == total {
-			log.Printf("[%s] Converting: %d/%d", chapter.FilePath, current, total)
+			log.Info().Str("file", chapter.FilePath).Uint32("current", current).Uint32("total", total).Msg("Converting")
 		}
 	})
 	if err != nil {
@@ -92,13 +92,13 @@ func Optimize(options *OptimizeOptions) error {
 		err = os.Remove(originalPath)
 		if err != nil {
 			// Log the error but don't fail the operation since conversion succeeded
-			log.Printf("Warning: failed to delete original CBR file %s: %v", originalPath, err)
+			log.Warn().Str("file", originalPath).Err(err).Msg("Failed to delete original CBR file")
 		} else {
-			log.Printf("Deleted original CBR file: %s", originalPath)
+			log.Info().Str("file", originalPath).Msg("Deleted original CBR file")
 		}
 	}
 
-	log.Printf("Converted file written to: %s\n", outputPath)
+	log.Info().Str("output", outputPath).Msg("Converted file written")
 	return nil
 
 }
