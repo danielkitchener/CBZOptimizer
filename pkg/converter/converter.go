@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/webp"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/webp"
 	"github.com/samber/lo"
 )
 

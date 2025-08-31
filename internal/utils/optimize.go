@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
-	errors2 "github.com/belphemur/CBZOptimizer/v2/pkg/converter/errors"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/cbz"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter"
+	errors2 "github.com/dkitchener/CBZOptimizer/v2/pkg/converter/errors"
 	"github.com/rs/zerolog/log"
 )
 

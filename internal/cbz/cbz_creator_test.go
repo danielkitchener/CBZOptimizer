@@ -4,11 +4,12 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
 )
 
 func TestWriteChapterToCBZ(t *testing.T) {

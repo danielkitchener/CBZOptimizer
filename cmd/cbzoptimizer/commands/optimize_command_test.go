@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/cbz"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/spf13/cobra"
 )
 

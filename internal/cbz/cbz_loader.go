@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/araddon/dateparse"
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
 	"github.com/mholt/archives"
 	"github.com/rs/zerolog/log"
 )
