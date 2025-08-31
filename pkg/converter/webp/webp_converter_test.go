@@ -12,8 +12,8 @@ import (
 
 	_ "golang.org/x/image/webp"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/danielkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

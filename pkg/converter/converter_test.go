@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/danielkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"golang.org/x/exp/slices"
 )
 

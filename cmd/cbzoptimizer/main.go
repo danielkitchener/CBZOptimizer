@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/belphemur/CBZOptimizer/v2/cmd/cbzoptimizer/commands"
+	"github.com/danielkitchener/CBZOptimizer/v2/cmd/cbzoptimizer/commands"
 )
 
 var (

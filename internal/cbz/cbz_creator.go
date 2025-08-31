@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/utils/errs"
 	"github.com/rs/zerolog/log"
 )
 

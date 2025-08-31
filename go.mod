@@ -1,4 +1,4 @@
-module github.com/belphemur/CBZOptimizer/v2
+module github.com/danielkitchener/CBZOptimizer/v2
 
 go 1.25
 

@@ -12,9 +12,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
-	converterrors "github.com/belphemur/CBZOptimizer/v2/pkg/converter/errors"
+	"github.com/danielkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/danielkitchener/CBZOptimizer/v2/pkg/converter/constant"
+	converterrors "github.com/danielkitchener/CBZOptimizer/v2/pkg/converter/errors"
 	"github.com/oliamb/cutter"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
