@@ -54,7 +54,7 @@ func (converter *Converter) PrepareConverter() error {
 	return nil
 }
 
-func (converter *Converter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (converter *Converter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, lossless bool, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	log.Debug().
 		Str("chapter", chapter.FilePath).
 		Int("pages", len(chapter.Pages)).
@@ -121,7 +121,7 @@ func (converter *Converter) ConvertChapter(ctx context.Context, chapter *manga.C
 				default:
 				}
 
-				convertedPage, err := converter.convertPage(pageToConvert, quality)
+				convertedPage, err := converter.convertPage(pageToConvert, quality, lossless)
 				if err != nil {
 					if convertedPage == nil {
 						select {
@@ -391,7 +391,7 @@ func (converter *Converter) checkPageNeedsSplit(page *manga.Page, splitRequested
 	return needsSplit, img, format, nil
 }
 
-func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8) (*manga.PageContainer, error) {
+func (converter *Converter) convertPage(container *manga.PageContainer, quality uint8, lossless bool) (*manga.PageContainer, error) {
 	log.Debug().
 		Uint16("page_index", container.Page.Index).
 		Str("format", container.Format).
@@ -419,7 +419,7 @@ func (converter *Converter) convertPage(container *manga.PageContainer, quality 
 		Uint8("quality", quality).
 		Msg("Encoding page to WebP format")
 
-	converted, err := converter.convert(container.Image, uint(quality))
+	converted, err := converter.convert(container.Image, uint(quality), lossless)
 	if err != nil {
 		log.Error().
 			Uint16("page_index", container.Page.Index).
@@ -442,9 +442,9 @@ func (converter *Converter) convertPage(container *manga.PageContainer, quality 
 // convert converts an image to the WebP format. It decodes the image from the input buffer,
 // encodes it as a WebP file using the webp.Encode() function, and returns the resulting WebP
 // file as a bytes.Buffer.
-func (converter *Converter) convert(image image.Image, quality uint) (*bytes.Buffer, error) {
+func (converter *Converter) convert(image image.Image, quality uint, lossless bool) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
-	err := Encode(&buf, image, quality)
+	err := Encode(&buf, image, quality, lossless)
 	if err != nil {
 		return nil, err
 	}

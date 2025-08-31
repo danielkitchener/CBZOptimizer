@@ -19,6 +19,7 @@ type OptimizeOptions struct {
 	ChapterConverter converter.Converter
 	Path             string
 	Quality          uint8
+	Lossless				 bool
 	Override         bool
 	Split            bool
 	Timeout          time.Duration
@@ -70,7 +71,7 @@ func Optimize(options *OptimizeOptions) error {
 		ctx = context.Background()
 	}
 
-	convertedChapter, err := options.ChapterConverter.ConvertChapter(ctx, chapter, options.Quality, options.Split, func(msg string, current uint32, total uint32) {
+	convertedChapter, err := options.ChapterConverter.ConvertChapter(ctx, chapter, options.Quality, options.Lossless, options.Split, func(msg string, current uint32, total uint32) {
 		if current%10 == 0 || current == total {
 			log.Info().Str("file", chapter.FilePath).Uint32("current", current).Uint32("total", total).Msg("Converting")
 		} else {

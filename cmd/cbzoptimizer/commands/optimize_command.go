@@ -29,6 +29,9 @@ func init() {
 	_ = formatFlag.RegisterCompletion(command, "format", constant.HelpText)
 
 	command.Flags().Uint8P("quality", "q", 85, "Quality for conversion (0-100)")
+	command.Flags().BoolP("lossless", "p", false, "Use lossless conversion (overrides quality setting)")
+	command.MarkFlagsOneRequired("quality", "lossless")
+	command.MarkFlagsMutuallyExclusive("quality", "lossless")
 	command.Flags().IntP("parallelism", "n", 2, "Number of chapters to convert in parallel")
 	command.Flags().BoolP("override", "o", false, "Override the original CBZ/CBR files")
 	command.Flags().BoolP("split", "s", false, "Split long pages into smaller chunks")
@@ -61,7 +64,8 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 	log.Debug().Msg("Parsing command-line flags")
 
 	quality, err := cmd.Flags().GetUint8("quality")
-	if err != nil || quality <= 0 || quality > 100 {
+	lossless, err2 := cmd.Flags().GetBool("lossless")
+	if err != nil || err2 != nil || (!lossless && (quality <= 0 || quality > 100)) {
 		log.Error().Err(err).Uint8("quality", quality).Msg("Invalid quality value")
 		return fmt.Errorf("invalid quality value")
 	}
@@ -132,6 +136,7 @@ func ConvertCbzCommand(cmd *cobra.Command, args []string) error {
 					ChapterConverter: chapterConverter,
 					Path:             path,
 					Quality:          quality,
+					Lossless:         lossless,
 					Override:         override,
 					Split:            split,
 					Timeout:          timeout,
