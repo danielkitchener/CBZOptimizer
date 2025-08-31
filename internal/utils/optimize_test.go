@@ -20,7 +20,7 @@ type MockConverter struct {
 	shouldFail bool
 }
 
-func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, lossless bool, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	if m.shouldFail {
 		return nil, &MockError{message: "mock conversion error"}
 	}
@@ -213,6 +213,7 @@ func TestOptimize(t *testing.T) {
 				ChapterConverter: &MockConverter{shouldFail: tt.mockFail},
 				Path:             testFile,
 				Quality:          85,
+				Lossless: 			  false,
 				Override:         tt.override,
 				Split:            false,
 				Timeout:          0,

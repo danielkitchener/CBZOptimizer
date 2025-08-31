@@ -85,7 +85,7 @@ func TestConvertChapter(t *testing.T) {
 						t.Log(msg)
 					}
 
-					convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, quality, tc.split, progress)
+					convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, quality, false, tc.split, progress)
 					if err != nil {
 						if convertedChapter != nil && slices.Contains(tc.expectPartialSuccess, converter.Format()) {
 							t.Logf("Partial success to convert genTestChapter: %v", err)
