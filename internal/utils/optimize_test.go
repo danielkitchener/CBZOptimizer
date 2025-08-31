@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/cbz"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 )
 
 // MockConverter for testing
@@ -20,7 +20,7 @@ type MockConverter struct {
 	shouldFail bool
 }
 
-func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, lossless bool, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	if m.shouldFail {
 		return nil, &MockError{message: "mock conversion error"}
 	}
@@ -213,6 +213,7 @@ func TestOptimize(t *testing.T) {
 				ChapterConverter: &MockConverter{shouldFail: tt.mockFail},
 				Path:             testFile,
 				Quality:          85,
+				Lossless: 			  false,
 				Override:         tt.override,
 				Split:            false,
 				Timeout:          0,

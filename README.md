@@ -18,7 +18,7 @@ CBZOptimizer is a Go-based tool designed to optimize CBZ (Comic Book Zip) and CB
 
 ### Download Binary
 
-Download the latest release from [GitHub Releases](https://github.com/belphemur/CBZOptimizer/releases).
+Download the latest release from [GitHub Releases](https://github.com/dkitchener/CBZOptimizer/releases).
 
 ### Docker
 
@@ -159,7 +159,7 @@ If you encounter issues:
 
 ## Support
 
-For issues and questions, please use [GitHub Issues](https://github.com/belphemur/CBZOptimizer/issues).
+For issues and questions, please use [GitHub Issues](https://github.com/dkitchener/CBZOptimizer/issues).
 
 ## License
 

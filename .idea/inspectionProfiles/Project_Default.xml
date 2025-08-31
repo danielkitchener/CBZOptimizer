@@ -3,7 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
       <methods>
-        <method importPath="github.com/belphemur/CBZOptimizer/converter" receiver="Converter" name="ConvertChapter" />
+        <method importPath="github.com/dkitchener/CBZOptimizer/converter" receiver="Converter" name="ConvertChapter" />
       </methods>
     </inspection_tool>
   </profile>

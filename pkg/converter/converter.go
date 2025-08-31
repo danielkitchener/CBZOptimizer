@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/webp"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/webp"
 	"github.com/samber/lo"
 )
 
@@ -17,7 +17,7 @@ type Converter interface {
 	// ConvertChapter converts a manga chapter to the specified format.
 	//
 	// Returns partial success where some pages are converted and some are not.
-	ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error)
+	ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, lossless bool, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error)
 	PrepareConverter() error
 }
 

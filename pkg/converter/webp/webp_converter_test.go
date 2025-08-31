@@ -12,8 +12,8 @@ import (
 
 	_ "golang.org/x/image/webp"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -46,7 +46,7 @@ func encodeImage(img image.Image, format string) (*bytes.Buffer, string, error) 
 		return buf, ".jpg", nil
 	case "webp":
 		PrepareEncoder()
-		if err := Encode(buf, img, 80); err != nil {
+		if err := Encode(buf, img, 80, false); err != nil {
 			return nil, "", err
 		}
 		return buf, ".webp", nil
@@ -172,7 +172,7 @@ func TestConverter_ConvertChapter(t *testing.T) {
 				assert.LessOrEqual(t, current, total, "Current progress should not exceed total")
 			}
 
-			convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, 80, tt.split, progress)
+			convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, 80, false, tt.split, progress)
 
 			if tt.expectError {
 				assert.Error(t, err)
@@ -257,7 +257,7 @@ func TestConverter_convertPage(t *testing.T) {
 			require.NoError(t, err)
 			container := manga.NewContainer(page, img, tt.format, tt.isToBeConverted)
 
-			converted, err := converter.convertPage(container, 80)
+			converted, err := converter.convertPage(container, 80, false)
 			require.NoError(t, err)
 			assert.NotNil(t, converted)
 
@@ -356,7 +356,7 @@ func TestConverter_ConvertChapter_Timeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1)
 	defer cancel()
 
-	convertedChapter, err := converter.ConvertChapter(ctx, chapter, 80, false, progress)
+	convertedChapter, err := converter.ConvertChapter(ctx, chapter, 80, false, false, progress)
 
 	// Should return context error due to timeout
 	assert.Error(t, err)

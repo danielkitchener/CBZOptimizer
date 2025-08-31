@@ -9,18 +9,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/cbz"
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/cbz"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/spf13/cobra"
 )
 
 // MockConverter is a mock implementation of the Converter interface
 type MockConverter struct{}
 
-func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
+func (m *MockConverter) ConvertChapter(ctx context.Context, chapter *manga.Chapter, quality uint8, lossless bool, split bool, progress func(message string, current uint32, total uint32)) (*manga.Chapter, error) {
 	chapter.IsConverted = true
 	chapter.ConvertedTime = time.Now()
 	return chapter, nil

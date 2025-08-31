@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/belphemur/CBZOptimizer/v2/internal/manga"
-	"github.com/belphemur/CBZOptimizer/v2/internal/utils/errs"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/manga"
+	"github.com/dkitchener/CBZOptimizer/v2/internal/utils/errs"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"golang.org/x/exp/slices"
 )
 
@@ -85,7 +85,7 @@ func TestConvertChapter(t *testing.T) {
 						t.Log(msg)
 					}
 
-					convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, quality, tc.split, progress)
+					convertedChapter, err := converter.ConvertChapter(context.Background(), chapter, quality, false, tc.split, progress)
 					if err != nil {
 						if convertedChapter != nil && slices.Contains(tc.expectPartialSuccess, converter.Format()) {
 							t.Logf("Partial success to convert genTestChapter: %v", err)

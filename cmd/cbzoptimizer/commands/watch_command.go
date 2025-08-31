@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	utils2 "github.com/belphemur/CBZOptimizer/v2/internal/utils"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter"
-	"github.com/belphemur/CBZOptimizer/v2/pkg/converter/constant"
+	utils2 "github.com/dkitchener/CBZOptimizer/v2/internal/utils"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter"
+	"github.com/dkitchener/CBZOptimizer/v2/pkg/converter/constant"
 	"github.com/pablodz/inotifywaitgo/inotifywaitgo"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
